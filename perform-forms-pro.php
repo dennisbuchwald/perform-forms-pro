@@ -3,7 +3,7 @@
  * Plugin Name:       PerForm Pro
  * Plugin URI:        https://dbw-media.de/perform-forms-pro/
  * Description:       Pro add-on for PerForm — webhooks, CSV export, SMTP & (coming) external CAPTCHA and payments. Docks onto the free PerForm core.
- * Version:           0.2.6
+ * Version:           0.2.7
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  perform-forms
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants — single source of truth.
  */
-define( 'PERFORM_PRO_VERSION', '0.2.6' );
+define( 'PERFORM_PRO_VERSION', '0.2.7' );
 // Minimum free-core version. 0.2.6 adds the `perform_submissions_deleted` seam
 // that the Pro GDPR erasure cascade relies on; against an older core, deleting a
 // submission would orphan its webhook delivery rows. (0.2.5 had already removed

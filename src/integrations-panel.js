@@ -428,18 +428,22 @@ function HeadersEditor( { headers, onChange } ) {
 					key={ index }
 					style={ { display: 'flex', gap: '4px', marginBottom: '4px' } }
 				>
-					<input
-						type="text"
+					<TextControl
 						value={ key }
 						placeholder={ __( 'Header name', 'perform-forms-pro' ) }
-						onChange={ ( e ) => setPair( index, e.target.value, value ) }
+						onChange={ ( v ) => setPair( index, v, value ) }
+						aria-label={ __( 'Header name', 'perform-forms-pro' ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
 						style={ { flex: 1, minWidth: 0 } }
 					/>
-					<input
-						type="text"
+					<TextControl
 						value={ value }
 						placeholder={ __( 'Value', 'perform-forms-pro' ) }
-						onChange={ ( e ) => setPair( index, key, e.target.value ) }
+						onChange={ ( v ) => setPair( index, key, v ) }
+						aria-label={ __( 'Header value', 'perform-forms-pro' ) }
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
 						style={ { flex: 1, minWidth: 0 } }
 					/>
 					<Button

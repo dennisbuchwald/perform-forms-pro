@@ -106,6 +106,11 @@ final class Privacy {
 		$repo           = new DeliveryRepository();
 		$export_data    = [];
 
+		// Note: the delivery `response_body` is intentionally NOT exported. It
+		// is the third-party endpoint's response (typically a status payload),
+		// not the data subject's own data, and may itself contain unrelated
+		// third-party content. It is still erased with the submission via the
+		// cascade, so nothing about the subject is retained.
 		foreach ( $submission_ids as $submission_id ) {
 			foreach ( $repo->find_for_submission( $submission_id ) as $delivery ) {
 				$items = [
