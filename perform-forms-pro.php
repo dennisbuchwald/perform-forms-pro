@@ -3,7 +3,7 @@
  * Plugin Name:       PerForm Pro
  * Plugin URI:        https://dbw-media.de/perform-forms-pro/
  * Description:       Pro add-on for PerForm — conditional logic, multi-step, webhooks, CSV export, SMTP & external CAPTCHA. Docks onto the free PerForm core.
- * Version:           0.2.1
+ * Version:           0.2.2
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  perform-forms
@@ -23,11 +23,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants — single source of truth.
  */
-define( 'PERFORM_PRO_VERSION', '0.2.1' );
-// Minimum free-core version. Bumped to 0.2.1: this Pro version removes SMTP
-// from the core, so it must not run against a 0.2.0 core that still ships its
-// own SMTP page (that would double the menu + dispatch).
-define( 'PERFORM_PRO_MIN_CORE', '0.2.1' );
+define( 'PERFORM_PRO_VERSION', '0.2.2' );
+// Minimum free-core version. 0.2.2 adds the form-container inspector-panel
+// filter the Pro editor script docks onto; against an older core the Pro
+// panels simply would not render, so require the matching core.
+define( 'PERFORM_PRO_MIN_CORE', '0.2.2' );
 define( 'PERFORM_PRO_FILE', __FILE__ );
 define( 'PERFORM_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PERFORM_PRO_URL', plugin_dir_url( __FILE__ ) );
@@ -94,6 +94,10 @@ function perform_pro_register_modules(): void {
 	// M-c-b: SMTP. Transport (phpmailer_init overrides + conflict detection)
 	// and the SMTP settings page, re-attached under the free core's menu.
 	( new \PerFormPro\Smtp\Module() )->register();
+
+	// M-c-c: block-editor extensions. Enqueues the Pro editor script that
+	// docks onto the free core's inspector-panel filter(s).
+	( new \PerFormPro\Editor\Extensions() )->register();
 
 	// Further modules dock here from the next M-c slices: conditional logic,
 	// multi-step, webhooks, external CAPTCHA providers.
