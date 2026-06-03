@@ -5,6 +5,7 @@
 # ship: it is this add-on's only bundled documentation.
 
 /.git
+/.claude
 /node_modules
 /src
 

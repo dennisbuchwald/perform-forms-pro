@@ -169,7 +169,8 @@ final class CsvExporter {
 			if ( '' === $name ) {
 				continue;
 			}
-			$indexed[ $name ] = isset( $field['value'] ) ? (string) $field['value'] : '';
+			$value            = $field['value'] ?? '';
+			$indexed[ $name ] = is_array( $value ) ? implode( ', ', array_map( 'strval', $value ) ) : (string) $value;
 		}
 		return $indexed;
 	}
