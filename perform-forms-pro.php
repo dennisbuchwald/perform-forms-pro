@@ -3,7 +3,7 @@
  * Plugin Name:       PerForm Pro
  * Plugin URI:        https://dbw-media.de/perform-forms-pro/
  * Description:       Pro add-on for PerForm — webhooks, CSV export, SMTP & (coming) external CAPTCHA and payments. Docks onto the free PerForm core.
- * Version:           0.2.5
+ * Version:           0.2.6
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  perform-forms
@@ -23,11 +23,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants — single source of truth.
  */
-define( 'PERFORM_PRO_VERSION', '0.2.5' );
-// Minimum free-core version. 0.2.5 removes the webhook backend (REST, cron,
-// tables, log page) from the free core; running this Pro against an older core
-// that still ships webhook code would double-register the whole subsystem.
-define( 'PERFORM_PRO_MIN_CORE', '0.2.5' );
+define( 'PERFORM_PRO_VERSION', '0.2.6' );
+// Minimum free-core version. 0.2.6 adds the `perform_submissions_deleted` seam
+// that the Pro GDPR erasure cascade relies on; against an older core, deleting a
+// submission would orphan its webhook delivery rows. (0.2.5 had already removed
+// the webhook backend from the core, so an older core is incompatible anyway.)
+define( 'PERFORM_PRO_MIN_CORE', '0.2.6' );
 define( 'PERFORM_PRO_FILE', __FILE__ );
 define( 'PERFORM_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PERFORM_PRO_URL', plugin_dir_url( __FILE__ ) );
@@ -105,6 +106,10 @@ function perform_pro_register_modules(): void {
 	// the Webhook Log page + the deliveries section, and the schema/cron
 	// lifecycle. (The Integrations editor panel was moved in M-c-d-1.)
 	( new \PerFormPro\Webhooks\Module() )->register();
+
+	// GDPR: privacy-policy content (webhooks + SMTP), a delivery-log personal-
+	// data exporter, and the erasure cascade for webhook delivery rows.
+	( new \PerFormPro\Privacy() )->register();
 
 	// Future modules dock here: external CAPTCHA providers, payments, etc.
 }

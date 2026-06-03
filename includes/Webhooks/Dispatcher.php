@@ -15,8 +15,8 @@
  *      `SubmissionListener` so new deliveries dispatch within
  *      seconds, not minutes.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );

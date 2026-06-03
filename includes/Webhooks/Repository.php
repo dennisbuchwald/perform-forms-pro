@@ -8,8 +8,8 @@
  * serialise it back to JSON or feed it to wp_remote_request anyway, so
  * an extra DTO layer would buy nothing.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );

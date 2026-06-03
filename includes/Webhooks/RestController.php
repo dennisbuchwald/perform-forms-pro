@@ -13,8 +13,8 @@
  * only consumer, and editing the block tree of any post already
  * requires that capability.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );
@@ -286,6 +286,12 @@ final class RestController {
 			'url'                => [
 				'type'              => 'string',
 				'sanitize_callback' => 'esc_url_raw',
+				// SSRF defence-in-depth: reject URLs WP considers unsafe
+				// (disallowed scheme/port, private/reserved hosts) at the
+				// REST boundary, on top of the Deliverer's reject_unsafe_urls.
+				'validate_callback' => static function ( $value ): bool {
+					return '' === $value || false !== wp_http_validate_url( (string) $value );
+				},
 			],
 			'method'             => [
 				'type' => 'string',

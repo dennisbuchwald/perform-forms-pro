@@ -38,8 +38,8 @@
  *     so an operator who enabled PerForm SMTP and then installed
  *     WP Mail SMTP can't miss the warning.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.1
  */
 
 declare( strict_types = 1 );

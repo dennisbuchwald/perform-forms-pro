@@ -9,8 +9,8 @@
  * Mirrors the SubmissionsListTable structure — same column callback
  * convention, same pagination wiring, same single-row action set.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );

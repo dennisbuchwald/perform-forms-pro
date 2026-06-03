@@ -23,4 +23,15 @@ if ( ! defined( 'PERFORM_PRO_DIR' ) ) {
 	define( 'PERFORM_PRO_DIR', plugin_dir_path( __FILE__ ) );
 }
 
+// Drop the webhook tables + the Pro schema-version option.
 \PerFormPro\Database\Schema::drop();
+
+// Remove SMTP options + the per-user SMTP test-result transients (the SMTP
+// module is owned by Pro since M-c-b).
+delete_option( 'perform_smtp_settings' );
+delete_option( 'perform_smtp_last_test' );
+
+$admins = get_users( [ 'role' => 'administrator', 'fields' => 'ID' ] );
+foreach ( $admins as $admin_id ) {
+	delete_transient( 'perform_smtp_test_result_' . $admin_id );
+}

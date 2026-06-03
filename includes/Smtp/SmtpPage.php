@@ -53,8 +53,8 @@
  * cipher" — which the Settings API would force into a register_setting
  * filter that has no visibility into the previous value.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.1
  */
 
 declare( strict_types = 1 );

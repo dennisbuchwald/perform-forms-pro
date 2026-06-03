@@ -13,8 +13,8 @@
  * key/value list with add / remove buttons — fine for a handful
  * of auth tokens, no full table component needed.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.4
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState, useCallback } from '@wordpress/element';

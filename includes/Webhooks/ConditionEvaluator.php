@@ -20,8 +20,8 @@
  *   is_empty         — true when the field value is null, empty string or empty array
  *   is_not_empty     — inverse of is_empty
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );

@@ -13,8 +13,8 @@
  * Conditional delivery + field mapping (Phase 6d) plug in here too —
  * for now this just gates on `is_active` and enqueues unconditionally.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );

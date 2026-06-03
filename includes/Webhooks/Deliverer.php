@@ -7,8 +7,8 @@
  * returned tuple `[ $code, $body ]`. The repository takes care of
  * the persistence side of things; this class deals only in HTTP.
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );
@@ -218,9 +218,13 @@ final class Deliverer {
 		}
 
 		$args = [
-			'method'  => $method,
-			'timeout' => self::TIMEOUT_SECONDS,
-			'headers' => $headers,
+			'method'           => $method,
+			'timeout'          => self::TIMEOUT_SECONDS,
+			'headers'          => $headers,
+			// SSRF defence-in-depth: make WP's HTTP API refuse to follow
+			// redirects to private/loopback/reserved IPs. The destination is
+			// admin-configured, but this blocks a malicious redirect target.
+			'reject_unsafe_urls' => true,
 		];
 
 		// Serialise the payload into the body (POST) or query string (GET)

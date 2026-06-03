@@ -15,8 +15,8 @@
  *   success     dispatched, 2xx response
  *   failed      retries exhausted (4 attempts total: 1 initial + 3 retries)
  *
- * @package PerForm
- * @since 0.1.0
+ * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );
@@ -242,6 +242,33 @@ final class DeliveryRepository {
 		}
 
 		return array_map( [ $this, 'hydrate' ], $rows );
+	}
+
+	/**
+	 * Delete every delivery-log row tied to the given submissions.
+	 *
+	 * GDPR erasure cascade: when submissions are deleted (manually or via
+	 * WordPress's personal-data eraser), their webhook delivery rows must be
+	 * removed too so no personal data is orphaned.
+	 *
+	 * @param array<int, int> $submission_ids
+	 * @return int Rows deleted.
+	 */
+	public function delete_for_submissions( array $submission_ids ): int {
+		global $wpdb;
+
+		$ids = array_values( array_filter( array_map( 'intval', $submission_ids ) ) );
+		if ( empty( $ids ) ) {
+			return 0;
+		}
+
+		$table        = Schema::webhook_deliveries_table_name();
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name controlled; placeholders prepared.
+		$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE submission_id IN ({$placeholders})", $ids ) );
+
+		return false === $deleted ? 0 : (int) $deleted;
 	}
 
 	/**
