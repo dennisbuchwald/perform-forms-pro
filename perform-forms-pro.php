@@ -3,7 +3,7 @@
  * Plugin Name:       PerForm Pro
  * Plugin URI:        https://dbw-media.de/perform-forms-pro/
  * Description:       Pro add-on for PerForm — conditional logic, multi-step, webhooks, CSV export, SMTP & external CAPTCHA. Docks onto the free PerForm core.
- * Version:           0.2.2
+ * Version:           0.2.3
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  perform-forms
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants — single source of truth.
  */
-define( 'PERFORM_PRO_VERSION', '0.2.2' );
+define( 'PERFORM_PRO_VERSION', '0.2.3' );
 // Minimum free-core version. 0.2.2 adds the form-container inspector-panel
 // filter the Pro editor script docks onto; against an older core the Pro
 // panels simply would not render, so require the matching core.
@@ -59,15 +59,14 @@ require_once PERFORM_PRO_DIR . 'includes/Autoloader.php';
  * @return array<int|string, mixed>
  */
 function perform_pro_advertise_features( array $features ): array {
-	// These are the capabilities the Pro add-on owns per the Free/Pro matrix
-	// (PERFORM_ROADMAP.md, Phase M). The actual modules move under Pro in
-	// slice M-c; advertising them here is what makes Features::has() resolve
-	// true once Pro is active.
-	$features[] = 'multistep';
-	$features[] = 'conditional_logic';
-	$features[] = 'webhooks';
-	$features[] = 'submissions_export';
-	$features[] = 'smtp';
+	// Capabilities the Pro add-on owns per the Free/Pro matrix (PERFORM_ROADMAP.md,
+	// Phase M). Conditional logic and multi-step deliberately stay in the FREE
+	// core (intrinsic to form-building, not cleanly separable) — Pro differentiates
+	// on integrations / infrastructure.
+	$features[] = 'submissions_export'; // CSV export (M-c-a)
+	$features[] = 'smtp';               // SMTP transport + settings (M-c-b)
+	// 'webhooks' is advertised once the module actually moves to Pro (M-c-d);
+	// until then webhooks still runs from the free core.
 
 	return $features;
 }
