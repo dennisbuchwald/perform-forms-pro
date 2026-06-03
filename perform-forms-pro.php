@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       PerForm Pro
  * Plugin URI:        https://dbw-media.de/perform-forms-pro/
- * Description:       Pro add-on for PerForm — conditional logic, multi-step, webhooks, CSV export, SMTP & external CAPTCHA. Docks onto the free PerForm core.
- * Version:           0.2.4
+ * Description:       Pro add-on for PerForm — webhooks, CSV export, SMTP & (coming) external CAPTCHA and payments. Docks onto the free PerForm core.
+ * Version:           0.2.5
  * Requires at least: 7.0
  * Requires PHP:      8.1
  * Requires Plugins:  perform-forms
@@ -23,11 +23,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin constants — single source of truth.
  */
-define( 'PERFORM_PRO_VERSION', '0.2.4' );
-// Minimum free-core version. 0.2.4 removes the free core's own Integrations
-// panel (Pro now provides it via the inspector-panel filter); running this Pro
-// against an older core would render the webhooks panel twice.
-define( 'PERFORM_PRO_MIN_CORE', '0.2.4' );
+define( 'PERFORM_PRO_VERSION', '0.2.5' );
+// Minimum free-core version. 0.2.5 removes the webhook backend (REST, cron,
+// tables, log page) from the free core; running this Pro against an older core
+// that still ships webhook code would double-register the whole subsystem.
+define( 'PERFORM_PRO_MIN_CORE', '0.2.5' );
 define( 'PERFORM_PRO_FILE', __FILE__ );
 define( 'PERFORM_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PERFORM_PRO_URL', plugin_dir_url( __FILE__ ) );
@@ -35,6 +35,10 @@ define( 'PERFORM_PRO_URL', plugin_dir_url( __FILE__ ) );
 // Register the Pro autoloader before anything touches the PerFormPro namespace.
 require_once PERFORM_PRO_DIR . 'includes/Autoloader.php';
 \PerFormPro\Autoloader::register();
+
+// Webhook tables + dispatcher cron live with the Pro add-on (M-c-d-2).
+register_activation_hook( __FILE__, [ \PerFormPro\Activator::class, 'activate' ] );
+register_deactivation_hook( __FILE__, [ \PerFormPro\Deactivator::class, 'deactivate' ] );
 
 /**
  * Dock onto the free PerForm core via the bridge layer.
@@ -65,8 +69,7 @@ function perform_pro_advertise_features( array $features ): array {
 	// on integrations / infrastructure.
 	$features[] = 'submissions_export'; // CSV export (M-c-a)
 	$features[] = 'smtp';               // SMTP transport + settings (M-c-b)
-	// 'webhooks' is advertised once the module actually moves to Pro (M-c-d);
-	// until then webhooks still runs from the free core.
+	$features[] = 'webhooks';           // REST + dispatcher + log + tables (M-c-d)
 
 	return $features;
 }
@@ -98,8 +101,12 @@ function perform_pro_register_modules(): void {
 	// docks onto the free core's inspector-panel filter(s).
 	( new \PerFormPro\Editor\Extensions() )->register();
 
-	// Further modules dock here from the next M-c slices: conditional logic,
-	// multi-step, webhooks, external CAPTCHA providers.
+	// M-c-d: webhooks — REST CRUD, cron dispatcher, submission listener,
+	// the Webhook Log page + the deliveries section, and the schema/cron
+	// lifecycle. (The Integrations editor panel was moved in M-c-d-1.)
+	( new \PerFormPro\Webhooks\Module() )->register();
+
+	// Future modules dock here: external CAPTCHA providers, payments, etc.
 }
 add_action( 'perform_register_modules', 'perform_pro_register_modules' );
 
