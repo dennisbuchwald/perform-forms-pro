@@ -10,7 +10,10 @@
 /src
 
 /.distignore
+/.editorconfig
 /.gitignore
+/composer.json
+/composer.lock
 /package.json
 /package-lock.json
 

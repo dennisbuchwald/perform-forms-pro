@@ -639,6 +639,11 @@ function FieldMappingEditor( { mapping, formFields, onChange } ) {
 								value={ mapping[ field.name ] ?? '' }
 								placeholder={ field.name }
 								onChange={ ( e ) => setTarget( field.name, e.target.value ) }
+								aria-label={ sprintf(
+									/* translators: %s: source field name. */
+									__( 'Payload key for field “%s”', 'perform-forms-pro' ),
+									field.name
+								) }
 								style={ { flex: 1, minWidth: 0 } }
 							/>
 						</div>

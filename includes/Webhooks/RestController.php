@@ -301,8 +301,16 @@ final class RestController {
 				'type' => 'string',
 				'enum' => [ 'json', 'form' ],
 			],
-			'headers'            => [ 'type' => 'object' ],
-			'field_mapping'      => [ 'type' => 'object' ],
+			'headers'            => [
+				'type'              => 'object',
+				// Cast every key + value to a sanitised string at the REST
+				// boundary (defence-in-depth; the Repository also normalises).
+				'sanitize_callback' => [ self::class, 'sanitize_string_map' ],
+			],
+			'field_mapping'      => [
+				'type'              => 'object',
+				'sanitize_callback' => [ self::class, 'sanitize_string_map' ],
+			],
 			'condition_field'    => [ 'type' => 'string' ],
 			'condition_operator' => [ 'type' => 'string' ],
 			'condition_value'    => [ 'type' => 'string' ],
@@ -333,5 +341,25 @@ final class RestController {
 			'condition_value'    => (string) ( $request->get_param( 'condition_value' ) ?? '' ),
 			'is_active'          => (bool) ( $request->get_param( 'is_active' ) ?? false ),
 		];
+	}
+
+	/**
+	 * Sanitise a string→string map (webhook headers / field mapping): every
+	 * key and value is coerced to a sanitised string. Non-array input → [].
+	 *
+	 * @param mixed $value Raw REST value.
+	 * @return array<string, string>
+	 */
+	public static function sanitize_string_map( $value ): array {
+		if ( ! is_array( $value ) ) {
+			return [];
+		}
+
+		$clean = [];
+		foreach ( $value as $key => $val ) {
+			$clean[ sanitize_text_field( (string) $key ) ] = sanitize_text_field( (string) $val );
+		}
+
+		return $clean;
 	}
 }

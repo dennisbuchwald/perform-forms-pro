@@ -8,6 +8,7 @@
  * left untouched here.
  *
  * @package PerFormPro
+ * @since 0.2.5
  */
 
 declare( strict_types = 1 );
