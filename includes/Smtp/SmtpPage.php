@@ -62,7 +62,7 @@ declare( strict_types = 1 );
 namespace PerFormPro\Smtp;
 
 use PerForm\Admin\Menu;
-use PerForm\Settings\Secret;
+use PerFormPro\Settings\Secret;
 
 defined( 'ABSPATH' ) || exit;
 

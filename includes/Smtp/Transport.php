@@ -46,7 +46,7 @@ declare( strict_types = 1 );
 
 namespace PerFormPro\Smtp;
 
-use PerForm\Settings\Secret;
+use PerFormPro\Settings\Secret;
 use PHPMailer\PHPMailer\PHPMailer;
 
 defined( 'ABSPATH' ) || exit;
