@@ -24,11 +24,10 @@ defined( 'ABSPATH' ) || exit;
  * Plugin constants — single source of truth.
  */
 define( 'PERFORM_PRO_VERSION', '0.2.9' );
-// Minimum free-core version. 0.2.6 adds the `perform_submissions_deleted` seam
-// that the Pro GDPR erasure cascade relies on; against an older core, deleting a
-// submission would orphan its webhook delivery rows. (0.2.5 had already removed
-// the webhook backend from the core, so an older core is incompatible anyway.)
-define( 'PERFORM_PRO_MIN_CORE', '0.2.6' );
+// Minimum free-core version. 0.2.9 adds Features::MULTI_STEP,
+// SPAM_CHALLENGE, CUSTOM_CSS gating in Registry/Guard/edit.js;
+// the Pro add-on advertises these so the free core unlocks them.
+define( 'PERFORM_PRO_MIN_CORE', '0.2.9' );
 define( 'PERFORM_PRO_FILE', __FILE__ );
 define( 'PERFORM_PRO_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PERFORM_PRO_URL', plugin_dir_url( __FILE__ ) );
@@ -64,13 +63,13 @@ register_deactivation_hook( __FILE__, [ \PerFormPro\Deactivator::class, 'deactiv
  * @return array<int|string, mixed>
  */
 function perform_pro_advertise_features( array $features ): array {
-	// Capabilities the Pro add-on owns per the Free/Pro matrix (PERFORM_ROADMAP.md,
-	// Phase M). Conditional logic and multi-step deliberately stay in the FREE
-	// core (intrinsic to form-building, not cleanly separable) — Pro differentiates
-	// on integrations / infrastructure.
+	// Capabilities the Pro add-on owns per the Free/Pro matrix.
 	$features[] = 'submissions_export'; // CSV export (M-c-a)
 	$features[] = 'smtp';               // SMTP transport + settings (M-c-b)
 	$features[] = 'webhooks';           // REST + dispatcher + log + tables (M-c-d)
+	$features[] = 'multi_step';         // Page-break block + boot script
+	$features[] = 'spam_challenge';     // PoW + math fallback challenge
+	$features[] = 'custom_css';         // Per-form custom CSS
 
 	return $features;
 }
