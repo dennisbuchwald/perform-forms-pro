@@ -1,15 +1,15 @@
 <?php
 /**
  * Plugin Name:       Flinkform Pro
- * Plugin URI:        https://dbw-media.de/flinkform-pro/
+ * Plugin URI:        https://dennisbuchwald.de/apps/flinkform-pro
  * Description:       Pro add-on for Flinkform — webhooks, CSV export, SMTP & (coming) external CAPTCHA and payments. Docks onto the free Flinkform core.
  * Version:           0.4.0
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Requires Plugins:  flinkform
- * Author:            dbw media
- * Author URI:        https://dbw-media.de
- * License:           GPL v2 or later
+ * Author:            Dennis Buchwald
+ * Author URI:        https://dennisbuchwald.de
+ * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       flinkform-pro
  *
