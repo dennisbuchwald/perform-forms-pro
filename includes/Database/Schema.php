@@ -33,8 +33,9 @@ final class Schema {
 	 * Pro schema version. Bumped whenever a Pro table changes.
 	 *
 	 *   1 — webhooks + webhook_deliveries (adopted from free core schema v2)
+	 *   2 — mail_log (SMTP send history)
 	 */
-	public const DB_VERSION = '1';
+	public const DB_VERSION = '2';
 
 	/**
 	 * Option key holding the installed Pro schema version.
@@ -59,6 +60,16 @@ final class Schema {
 	public static function webhook_deliveries_table_name(): string {
 		global $wpdb;
 		return $wpdb->prefix . 'flinkform_webhook_deliveries';
+	}
+
+	/**
+	 * Resolve the fully-qualified mail-log table name.
+	 *
+	 * @return string
+	 */
+	public static function mail_log_table_name(): string {
+		global $wpdb;
+		return $wpdb->prefix . 'flinkform_mail_log';
 	}
 
 	/**
@@ -88,8 +99,39 @@ final class Schema {
 
 		self::create_webhooks_table();
 		self::create_webhook_deliveries_table();
+		self::create_mail_log_table();
 
 		update_option( self::OPTION_DB_VERSION, self::DB_VERSION, false );
+	}
+
+	/**
+	 * SMTP send log. One row per wp_mail() attempt while logging is on.
+	 *
+	 * Deliberately GDPR-lean: recipients + subject + error detail only,
+	 * never the mail body. Rows are purged by MailLog after the
+	 * configured retention period.
+	 *
+	 * @return void
+	 */
+	private static function create_mail_log_table(): void {
+		global $wpdb;
+
+		$table   = self::mail_log_table_name();
+		$charset = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE {$table} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			status varchar(10) NOT NULL DEFAULT 'sent',
+			recipients text NOT NULL,
+			subject text NOT NULL,
+			error text NOT NULL,
+			created_at datetime NOT NULL,
+			PRIMARY KEY  (id),
+			KEY status (status),
+			KEY created_at (created_at)
+		) {$charset};";
+
+		dbDelta( $sql );
 	}
 
 	/**
@@ -171,6 +213,7 @@ final class Schema {
 		$tables = [
 			self::webhook_deliveries_table_name(),
 			self::webhooks_table_name(),
+			self::mail_log_table_name(),
 		];
 
 		foreach ( $tables as $table ) {

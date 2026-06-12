@@ -123,16 +123,18 @@ final class SmtpPage {
 	 */
 	public static function defaults(): array {
 		return [
-			'enabled'    => false,
-			'provider'   => '',
-			'host'       => '',
-			'port'       => 587,
-			'encryption' => 'tls',
-			'auth'       => true,
-			'username'   => '',
-			'password'   => '',
-			'from_email' => '',
-			'from_name'  => '',
+			'enabled'            => false,
+			'provider'           => '',
+			'host'               => '',
+			'port'               => 587,
+			'encryption'         => 'tls',
+			'auth'               => true,
+			'username'           => '',
+			'password'           => '',
+			'from_email'         => '',
+			'from_name'          => '',
+			'log_enabled'        => true,
+			'log_retention_days' => 30,
 		];
 	}
 
@@ -192,6 +194,10 @@ final class SmtpPage {
 		$from_email          = sanitize_email( (string) ( $input['from_email'] ?? '' ) );
 		$next['from_email']  = is_email( $from_email ) ? $from_email : '';
 		$next['from_name']   = sanitize_text_field( (string) ( $input['from_name'] ?? '' ) );
+
+		$next['log_enabled'] = ! empty( $input['log_enabled'] );
+		$retention           = (int) ( $input['log_retention_days'] ?? 30 );
+		$next['log_retention_days'] = max( 1, min( 365, $retention > 0 ? $retention : 30 ) );
 
 		update_option( self::OPTION_KEY, $next, false );
 
@@ -665,14 +671,106 @@ final class SmtpPage {
 								/>
 							</td>
 						</tr>
+
+						<tr>
+							<th scope="row"><?php esc_html_e( 'Send log', 'flinkform-pro' ); ?></th>
+							<td>
+								<label for="flinkform-smtp-log-enabled">
+									<input
+										type="checkbox"
+										id="flinkform-smtp-log-enabled"
+										name="flinkform_smtp[log_enabled]"
+										value="1"
+										<?php checked( ! empty( $settings['log_enabled'] ) ); ?>
+									/>
+									<?php esc_html_e( 'Keep a send history (recipient, subject, result - never the mail body)', 'flinkform-pro' ); ?>
+								</label>
+								<p class="description">
+									<?php esc_html_e( 'Shows whether each notification actually left the server, with the exact error when it did not.', 'flinkform-pro' ); ?>
+								</p>
+							</td>
+						</tr>
+
+						<tr>
+							<th scope="row">
+								<label for="flinkform-smtp-log-retention"><?php esc_html_e( 'Log retention (days)', 'flinkform-pro' ); ?></label>
+							</th>
+							<td>
+								<input
+									type="number"
+									id="flinkform-smtp-log-retention"
+									name="flinkform_smtp[log_retention_days]"
+									value="<?php echo esc_attr( (string) (int) ( $settings['log_retention_days'] ?? 30 ) ); ?>"
+									min="1"
+									max="365"
+									class="small-text"
+								/>
+								<p class="description">
+									<?php esc_html_e( 'Older entries are deleted automatically (data minimisation).', 'flinkform-pro' ); ?>
+								</p>
+							</td>
+						</tr>
 					</tbody>
 				</table>
 
 				<?php submit_button( __( 'Save SMTP settings', 'flinkform-pro' ) ); ?>
 			</form>
+
+			<?php $this->render_send_log( $settings ); ?>
 		</div>
 
 		<?php $this->render_preset_filler_script( $providers ); ?>
+		<?php
+	}
+
+	/**
+	 * Render the send-log table below the settings form.
+	 *
+	 * @param array<string, mixed> $settings Current SMTP settings.
+	 * @return void
+	 */
+	private function render_send_log( array $settings ): void {
+		if ( empty( $settings['log_enabled'] ) ) {
+			return;
+		}
+
+		$rows = MailLog::latest();
+		?>
+		<h2><?php esc_html_e( 'Send Log', 'flinkform-pro' ); ?></h2>
+		<?php if ( empty( $rows ) ) : ?>
+			<p><?php esc_html_e( 'No emails logged yet. Entries appear here as soon as WordPress sends mail.', 'flinkform-pro' ); ?></p>
+			<?php
+			return;
+		endif;
+		?>
+		<table class="widefat striped" style="max-width: 1000px;">
+			<thead>
+				<tr>
+					<th scope="col"><?php esc_html_e( 'Time (UTC)', 'flinkform-pro' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Status', 'flinkform-pro' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Recipient', 'flinkform-pro' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Subject', 'flinkform-pro' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Error', 'flinkform-pro' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( $rows as $row ) : ?>
+					<tr>
+						<td><?php echo esc_html( (string) ( $row['created_at'] ?? '' ) ); ?></td>
+						<td>
+							<?php if ( 'failed' === ( $row['status'] ?? '' ) ) : ?>
+								<span style="color: #b32d2e; font-weight: 600;"><?php esc_html_e( 'Failed', 'flinkform-pro' ); ?></span>
+							<?php else : ?>
+								<span style="color: #1a7f37; font-weight: 600;"><?php esc_html_e( 'Sent', 'flinkform-pro' ); ?></span>
+							<?php endif; ?>
+						</td>
+						<td><?php echo esc_html( (string) ( $row['recipients'] ?? '' ) ); ?></td>
+						<td><?php echo esc_html( (string) ( $row['subject'] ?? '' ) ); ?></td>
+						<td><?php echo esc_html( (string) ( $row['error'] ?? '' ) ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 

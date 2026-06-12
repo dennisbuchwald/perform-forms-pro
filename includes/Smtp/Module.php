@@ -37,6 +37,7 @@ final class Module {
 	 */
 	public function register(): void {
 		( new Transport() )->register();
+		( new MailLog() )->register();
 
 		// Priority 20: after the free core's Menu::register_pages() (priority
 		// 10) so the parent Flinkform menu exists before we add the submenu.
