@@ -1,0 +1,67 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "flinkform/field-file",
+	"version": "0.4.0",
+	"title": "File Upload Field",
+	"category": "flinkform",
+	"icon": "upload",
+	"description": "Let visitors attach a file to their submission (Pro).",
+	"keywords": [
+		"file",
+		"upload",
+		"attachment",
+		"datei"
+	],
+	"textdomain": "flinkform-pro",
+	"parent": [
+		"flinkform/form"
+	],
+	"supports": {
+		"html": false,
+		"reusable": false
+	},
+	"attributes": {
+		"label": {
+			"type": "string",
+			"default": "File"
+		},
+		"required": {
+			"type": "boolean",
+			"default": false
+		},
+		"helpText": {
+			"type": "string",
+			"default": ""
+		},
+		"fieldName": {
+			"type": "string",
+			"default": ""
+		},
+		"fullWidth": {
+			"type": "boolean",
+			"default": false
+		},
+		"conditionalLogic": {
+			"type": "object",
+			"default": {}
+		},
+		"allowedTypes": {
+			"type": "array",
+			"default": [ "pdf", "jpg", "png" ],
+			"items": {
+				"type": "string"
+			}
+		},
+		"maxSizeMb": {
+			"type": "number",
+			"default": 5
+		}
+	},
+	"usesContext": [
+		"flinkform/formId",
+		"flinkform/appearance"
+	],
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php"
+}

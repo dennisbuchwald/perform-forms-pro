@@ -67,9 +67,11 @@ function flinkform_pro_advertise_features( array $features ): array {
 	$features[] = 'submissions_export'; // CSV export (M-c-a)
 	$features[] = 'smtp';               // SMTP transport + settings (M-c-b)
 	$features[] = 'webhooks';           // REST + dispatcher + log + tables (M-c-d)
-	$features[] = 'multi_step';         // Page-break block + boot script
-	$features[] = 'spam_challenge';     // PoW + math fallback challenge
 	$features[] = 'custom_css';         // Per-form custom CSS
+	$features[] = 'file_upload';        // File Upload field block + processing
+
+	// NOTE: multi_step and spam_challenge are no longer advertised — both
+	// live in the free core since 0.4.0 (per the published feature matrix).
 
 	return $features;
 }
@@ -109,6 +111,10 @@ function flinkform_pro_register_modules(): void {
 	// Custom CSS: re-adds the per-form CSS feature (attribute + render output).
 	// The editor panel is handled by the JS bundle (custom-css-panel.js).
 	( new \FlinkformPro\CustomCss\Module() )->register();
+
+	// File uploads: registers the field-file block + the upload processing
+	// via the core's field-type seams, plus the file-deletion cascade.
+	( new \FlinkformPro\Uploads\Module() )->register();
 
 	// GDPR: privacy-policy content (webhooks + SMTP), a delivery-log personal-
 	// data exporter, and the erasure cascade for webhook delivery rows.

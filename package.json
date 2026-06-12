@@ -18,10 +18,11 @@
 		"npm": ">=10.0.0"
 	},
 	"scripts": {
-		"build": "wp-scripts build",
+		"build": "wp-scripts build && wp-scripts build --webpack-src-dir=blocks/src --output-path=blocks/build",
 		"start": "wp-scripts start",
 		"lint:js": "wp-scripts lint-js",
-		"format": "wp-scripts format"
+		"format": "wp-scripts format",
+		"start:blocks": "wp-scripts start --webpack-src-dir=blocks/src --output-path=blocks/build"
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "^30.0.0"
