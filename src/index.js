@@ -14,6 +14,7 @@ import { addFilter } from '@wordpress/hooks';
 import IntegrationsPanel from './integrations-panel';
 import SpamPanel from './spam-panel';
 import CustomCssPanel from './custom-css-panel';
+import NewsletterPanel from './newsletter-panel';
 
 /**
  * Append Pro inspector panels to the form-container inspector.
@@ -41,6 +42,12 @@ addFilter(
 		<IntegrationsPanel
 			key="flinkform-pro-integrations"
 			formId={ props.formId }
+			formFields={ props.formFields }
+		/>,
+		<NewsletterPanel
+			key="flinkform-pro-newsletter"
+			attributes={ props.attributes }
+			setAttributes={ props.setAttributes }
 			formFields={ props.formFields }
 		/>,
 	]

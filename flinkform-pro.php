@@ -69,6 +69,7 @@ function flinkform_pro_advertise_features( array $features ): array {
 	$features[] = 'webhooks';           // REST + dispatcher + log + tables (M-c-d)
 	$features[] = 'custom_css';         // Per-form custom CSS
 	$features[] = 'file_upload';        // File Upload field block + processing
+	$features[] = 'newsletter';         // Brevo / Mailchimp / CleverReach signups
 
 	// NOTE: multi_step and spam_challenge are no longer advertised — both
 	// live in the free core since 0.4.0 (per the published feature matrix).
@@ -115,6 +116,11 @@ function flinkform_pro_register_modules(): void {
 	// File uploads: registers the field-file block + the upload processing
 	// via the core's field-type seams, plus the file-deletion cascade.
 	( new \FlinkformPro\Uploads\Module() )->register();
+
+	// Newsletter integrations: per-form signups to Brevo / Mailchimp /
+	// CleverReach with a mandatory consent gate, async cron dispatch and
+	// the credentials settings page.
+	( new \FlinkformPro\Newsletter\Module() )->register();
 
 	// GDPR: privacy-policy content (webhooks + SMTP), a delivery-log personal-
 	// data exporter, and the erasure cascade for webhook delivery rows.

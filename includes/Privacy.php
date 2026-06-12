@@ -104,6 +104,7 @@ final class Privacy {
 		$content .= '<p>' . esc_html__( 'Webhook delivery-log entries tied to a submission are removed automatically when that submission is deleted or erased through a data-subject request.', 'flinkform-pro' ) . '</p>';
 		$content .= '<p>' . esc_html__( 'When the SMTP send log is enabled, this website keeps a record of outgoing notification emails (recipient address, subject line and delivery result — never the message body). Entries are deleted automatically after the configured retention period and are covered by data-subject erasure requests.', 'flinkform-pro' ) . '</p>';
 		$content .= '<p>' . esc_html__( 'When a form contains a File Upload field, files visitors attach are stored in this website\'s uploads directory under randomised names. An uploaded file is deleted automatically when the submission it belongs to is deleted — whether manually, through the per-form retention period, or through a data-subject erasure request.', 'flinkform-pro' ) . '</p>';
+		$content .= '<p>' . esc_html__( 'When a form has a newsletter integration enabled, the email address (and, if mapped, the name) is transmitted to the configured newsletter provider (Brevo, Mailchimp or CleverReach) — but only when the visitor has actively ticked the consent field on the form. Those providers may process the data outside the European Union; their own privacy policies apply.', 'flinkform-pro' ) . '</p>';
 
 		wp_add_privacy_policy_content( 'Flinkform Pro', $content );
 	}
