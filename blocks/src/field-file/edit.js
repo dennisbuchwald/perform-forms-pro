@@ -33,7 +33,7 @@ function generateFieldName( prefix ) {
 }
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { label, required, helpText, fieldName, allowedTypes, maxSizeMb } = attributes;
+	const { label, required, helpText, fieldName, allowedTypes, maxSizeMb, attachToEmail } = attributes;
 	const blockProps = useBlockProps( { className: 'flinkform-field flinkform-field--file is-enhanced' } );
 
 	useEffect( () => {
@@ -108,6 +108,13 @@ export default function Edit( { attributes, setAttributes } ) {
 						max={ 64 }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
+					/>
+					<ToggleControl
+						label={ __( 'Attach file to notification email', 'flinkform-pro' ) }
+						help={ __( 'The uploaded file is attached to the admin notification (up to 8 MB; larger files arrive as a link). Combine with a Data Retention period on the form so the server copy cleans itself up.', 'flinkform-pro' ) }
+						checked={ attachToEmail !== false }
+						onChange={ ( v ) => setAttributes( { attachToEmail: v } ) }
+						__nextHasNoMarginBottom
 					/>
 				</PanelBody>
 			</InspectorControls>

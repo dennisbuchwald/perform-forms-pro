@@ -65,8 +65,10 @@ final class Module {
 					return $extras;
 				}
 				return [
-					'allowedTypes' => isset( $attrs['allowedTypes'] ) && is_array( $attrs['allowedTypes'] ) ? $attrs['allowedTypes'] : [ 'pdf', 'jpg', 'png' ],
-					'maxSizeMb'    => isset( $attrs['maxSizeMb'] ) && is_numeric( $attrs['maxSizeMb'] ) ? (int) $attrs['maxSizeMb'] : 5,
+					'allowedTypes'  => isset( $attrs['allowedTypes'] ) && is_array( $attrs['allowedTypes'] ) ? $attrs['allowedTypes'] : [ 'pdf', 'jpg', 'png' ],
+					'maxSizeMb'     => isset( $attrs['maxSizeMb'] ) && is_numeric( $attrs['maxSizeMb'] ) ? (int) $attrs['maxSizeMb'] : 5,
+					// Default true — unset attribute means "attach".
+					'attachToEmail' => ! isset( $attrs['attachToEmail'] ) || false !== $attrs['attachToEmail'],
 				];
 			},
 			10,
@@ -101,10 +103,66 @@ final class Module {
 			2
 		);
 
+		// Attach uploaded files to the admin notification email (per-field
+		// opt-out via the attachToEmail attribute, 8 MB total cap so the
+		// mail itself doesn't bounce at common provider limits).
+		add_filter( 'flinkform_email_notification', [ $this, 'attach_files_to_email' ], 10, 4 );
+
 		// Deletion cascade: resolve file paths while the rows still exist…
 		add_action( 'flinkform_submissions_before_delete', [ $this, 'collect_files_for_deletion' ] );
 		// …and unlink them once the rows are gone.
 		add_action( 'flinkform_submissions_deleted', [ $this, 'delete_collected_files' ] );
+	}
+
+	/**
+	 * flinkform_email_notification filter — append stored upload paths to
+	 * the admin notification's attachments.
+	 *
+	 * Only the admin branch gets attachments: the submitter confirmation
+	 * deliberately stays lightweight (the submitter has the file anyway).
+	 *
+	 * @param array<string, mixed> $email    { to, subject, body, headers, attachments }.
+	 * @param array<string, mixed> $context  Merge-tag context (fields, field_defs, …).
+	 * @param array<string, mixed> $form_def Located form definition.
+	 * @param string               $type     'admin' | 'submitter'.
+	 * @return array<string, mixed>
+	 */
+	public function attach_files_to_email( $email, $context, $form_def, $type ) {
+		if ( ! is_array( $email ) || 'admin' !== $type || ! is_array( $context ) ) {
+			return $email;
+		}
+
+		$fields = isset( $context['field_defs'] ) && is_array( $context['field_defs'] ) ? $context['field_defs'] : [];
+		$values = isset( $context['fields'] ) && is_array( $context['fields'] ) ? $context['fields'] : [];
+
+		$attachments = isset( $email['attachments'] ) && is_array( $email['attachments'] ) ? $email['attachments'] : [];
+		$budget      = 8 * MB_IN_BYTES; // Total attachment budget per mail.
+
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) || ( $field['type'] ?? '' ) !== 'file' ) {
+				continue;
+			}
+			if ( isset( $field['attachToEmail'] ) && false === $field['attachToEmail'] ) {
+				continue;
+			}
+
+			$url  = (string) ( $values[ $field['name'] ?? '' ] ?? '' );
+			$path = '' !== $url ? Uploader::url_to_path( $url ) : '';
+			if ( '' === $path ) {
+				continue;
+			}
+
+			$size = (int) filesize( $path );
+			if ( $size <= 0 || $size > $budget ) {
+				continue; // Too large for mail — the link in the body still works.
+			}
+
+			$attachments[] = $path;
+			$budget       -= $size;
+		}
+
+		$email['attachments'] = $attachments;
+		return $email;
 	}
 
 	/**
