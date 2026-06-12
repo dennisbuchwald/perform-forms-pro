@@ -48,7 +48,11 @@
 		},
 		"allowedTypes": {
 			"type": "array",
-			"default": [ "pdf", "jpg", "png" ],
+			"default": [
+				"pdf",
+				"jpg",
+				"png"
+			],
 			"items": {
 				"type": "string"
 			}
@@ -63,5 +67,7 @@
 		"flinkform/appearance"
 	],
 	"editorScript": "file:./index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"viewScript": "file:./view.js",
+	"style": "file:./style-index.css"
 }

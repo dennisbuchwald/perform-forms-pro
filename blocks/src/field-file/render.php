@@ -70,16 +70,52 @@ $described = trim( $hint_id . ' ' . $help_id . ' ' . $error_id );
 			<span class="flinkform-field__required" aria-hidden="true"> *</span>
 		<?php endif; ?>
 	</label>
-	<input
-		type="file"
-		id="<?php echo esc_attr( $field_uid ); ?>"
-		name="flinkform_files[<?php echo esc_attr( $field_name ); ?>]"
-		class="flinkform-field__input flinkform-field__input--file"
-		<?php echo '' !== $accept ? 'accept="' . esc_attr( $accept ) . '"' : ''; ?>
-		<?php echo $required ? 'required aria-required="true"' : ''; ?>
-		<?php echo $described ? 'aria-describedby="' . esc_attr( $described ) . '"' : ''; ?>
-		<?php echo $error ? 'aria-invalid="true"' : ''; ?>
-	/>
+	<div class="flinkform-field__dropzone" data-flinkform-dropzone>
+		<input
+			type="file"
+			id="<?php echo esc_attr( $field_uid ); ?>"
+			name="flinkform_files[<?php echo esc_attr( $field_name ); ?>]"
+			class="flinkform-field__input flinkform-field__input--file"
+			<?php echo '' !== $accept ? 'accept="' . esc_attr( $accept ) . '"' : ''; ?>
+			<?php echo $required ? 'required aria-required="true"' : ''; ?>
+			<?php echo $described ? 'aria-describedby="' . esc_attr( $described ) . '"' : ''; ?>
+			<?php echo $error ? 'aria-invalid="true"' : ''; ?>
+		/>
+		<div class="flinkform-field__dropzone-idle" aria-hidden="true">
+			<span class="flinkform-field__dropzone-icon">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+					<path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3" />
+					<path d="M12 16V4" />
+					<path d="m7 9 5-5 5 5" />
+				</svg>
+			</span>
+			<span class="flinkform-field__dropzone-text">
+				<?php
+				printf(
+					/* translators: %s: "Choose a file" (rendered bold) */
+					esc_html__( '%s or drag it here', 'flinkform-pro' ),
+					'<strong>' . esc_html__( 'Choose a file', 'flinkform-pro' ) . '</strong>'
+				);
+				?>
+			</span>
+		</div>
+		<div class="flinkform-field__dropzone-file">
+			<span class="flinkform-field__dropzone-file-icon" aria-hidden="true">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+					<path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z" />
+					<path d="M14 2v5h5" />
+				</svg>
+			</span>
+			<span class="flinkform-field__dropzone-name" data-flinkform-file-name></span>
+			<span class="flinkform-field__dropzone-size" data-flinkform-file-size></span>
+			<button
+				type="button"
+				class="flinkform-field__dropzone-remove"
+				data-flinkform-file-remove
+				aria-label="<?php esc_attr_e( 'Remove selected file', 'flinkform-pro' ); ?>"
+			>&times;</button>
+		</div>
+	</div>
 	<p class="flinkform-field__help" id="<?php echo esc_attr( $hint_id ); ?>">
 		<?php
 		echo esc_html(

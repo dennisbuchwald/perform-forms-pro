@@ -34,7 +34,7 @@ function generateFieldName( prefix ) {
 
 export default function Edit( { attributes, setAttributes } ) {
 	const { label, required, helpText, fieldName, allowedTypes, maxSizeMb } = attributes;
-	const blockProps = useBlockProps( { className: 'flinkform-field flinkform-field--file' } );
+	const blockProps = useBlockProps( { className: 'flinkform-field flinkform-field--file is-enhanced' } );
 
 	useEffect( () => {
 		if ( ! fieldName ) {
@@ -117,12 +117,21 @@ export default function Edit( { attributes, setAttributes } ) {
 					{ label }
 					{ required && <span className="flinkform-field__required" aria-hidden="true"> *</span> }
 				</label>
-				<input
-					type="file"
-					className="flinkform-field__input"
-					disabled
-					aria-disabled="true"
-				/>
+				<div className="flinkform-field__dropzone">
+					<div className="flinkform-field__dropzone-idle" aria-hidden="true">
+						<span className="flinkform-field__dropzone-icon">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+								<path d="M21 15v3a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-3" />
+								<path d="M12 16V4" />
+								<path d="m7 9 5-5 5 5" />
+							</svg>
+						</span>
+						<span className="flinkform-field__dropzone-text">
+							<strong>{ __( 'Choose a file', 'flinkform-pro' ) }</strong>
+							{ ' ' + __( 'or drag it here', 'flinkform-pro' ) }
+						</span>
+					</div>
+				</div>
 				<p className="flinkform-field__help">
 					{ types.length > 0
 						? sprintf(

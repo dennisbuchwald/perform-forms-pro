@@ -1,0 +1,166 @@
+/**
+ * File Upload field — frontend + editor styles (Pro).
+ *
+ * Progressive enhancement: without JavaScript the native file input
+ * renders as-is (the dropzone visuals stay hidden). view.js adds
+ * `.is-enhanced` to the field wrapper, which hides the native input
+ * visually (it stays focusable and covers the whole dropzone, so click,
+ * keyboard and native drag-and-drop all keep working) and reveals the
+ * styled dropzone. `.has-file` switches from the idle prompt to the
+ * selected-file card.
+ */
+
+.flinkform-field--file {
+
+	// Hidden until JS enhances the field.
+	.flinkform-field__dropzone-idle,
+	.flinkform-field__dropzone-file {
+		display: none;
+	}
+
+	&.is-enhanced .flinkform-field__dropzone {
+		position: relative;
+		display: block;
+		padding: 1.75rem 1.25rem;
+		border: 2px dashed color-mix(in srgb, currentColor 28%, transparent);
+		border-radius: var(--flinkform-border-radius, 6px);
+		background: color-mix(in srgb, currentColor 3%, transparent);
+		text-align: center;
+		transition: border-color 0.15s ease, background-color 0.15s ease;
+
+		// The real input covers the whole zone: clicks open the picker,
+		// files dropped anywhere on it land in the input natively, and
+		// keyboard focus stays on a genuine form control.
+		input[type="file"] {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			opacity: 0;
+			cursor: pointer;
+			z-index: 1;
+		}
+
+		&:hover,
+		&.is-dragover {
+			border-color: var(--flinkform-color-primary, currentColor);
+			background: color-mix(in srgb, var(--flinkform-color-primary, currentColor) 6%, transparent);
+		}
+
+		&:focus-within {
+			outline: 2px solid var(--flinkform-color-primary, currentColor);
+			outline-offset: 2px;
+		}
+	}
+
+	&.is-enhanced .flinkform-field__dropzone-idle {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+		pointer-events: none; // Clicks fall through to the input.
+	}
+
+	&.is-enhanced .flinkform-field__dropzone-icon {
+		inline-size: 2.25rem;
+		block-size: 2.25rem;
+		opacity: 0.55;
+
+		svg {
+			inline-size: 100%;
+			block-size: 100%;
+			display: block;
+		}
+	}
+
+	&.is-enhanced .flinkform-field__dropzone-text {
+		font-size: 0.95em;
+
+		strong {
+			color: var(--flinkform-color-primary, currentColor);
+		}
+	}
+
+	// Selected-file card.
+	&.is-enhanced.has-file {
+
+		.flinkform-field__dropzone {
+			border-style: solid;
+			border-color: color-mix(in srgb, var(--flinkform-color-primary, currentColor) 45%, transparent);
+			text-align: start;
+		}
+
+		.flinkform-field__dropzone-idle {
+			display: none;
+		}
+
+		.flinkform-field__dropzone-file {
+			display: flex;
+			align-items: center;
+			gap: 0.65rem;
+			position: relative;
+			z-index: 2;          // Above the covering input…
+			pointer-events: none; // …but transparent to clicks…
+
+			.flinkform-field__dropzone-remove {
+				pointer-events: auto; // …except the remove button.
+			}
+		}
+	}
+
+	.flinkform-field__dropzone-file-icon {
+		flex: 0 0 auto;
+		inline-size: 1.5rem;
+		block-size: 1.5rem;
+		opacity: 0.7;
+
+		svg {
+			inline-size: 100%;
+			block-size: 100%;
+			display: block;
+		}
+	}
+
+	.flinkform-field__dropzone-name {
+		font-weight: 600;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		min-width: 0;
+	}
+
+	.flinkform-field__dropzone-size {
+		flex: 0 0 auto;
+		opacity: 0.65;
+		font-size: 0.85em;
+	}
+
+	.flinkform-field__dropzone-remove {
+		flex: 0 0 auto;
+		margin-inline-start: auto;
+		inline-size: 1.75rem;
+		block-size: 1.75rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: 0;
+		border-radius: 50%;
+		background: color-mix(in srgb, currentColor 8%, transparent);
+		color: inherit;
+		font-size: 1.1em;
+		line-height: 1;
+		cursor: pointer;
+		transition: background-color 0.15s ease;
+
+		&:hover,
+		&:focus-visible {
+			background: color-mix(in srgb, #b32d2e 15%, transparent);
+			color: #b32d2e;
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--flinkform-color-primary, currentColor);
+			outline-offset: 1px;
+		}
+	}
+}
