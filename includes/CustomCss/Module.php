@@ -5,21 +5,21 @@
  * Re-adds the per-form custom CSS feature that the free core removed for
  * WordPress.org compliance. Three responsibilities:
  *
- *   1. Register the `customCSS` block attribute on `perform/form` so
+ *   1. Register the `customCSS` block attribute on `flinkform/form` so
  *      WordPress persists the value (the free core's block.json no longer
  *      declares it).
  *   2. Render the sanitised CSS into a `<style>` tag on the frontend via
- *      the `render_block_perform/form` filter.
+ *      the `render_block_flinkform/form` filter.
  *   3. Output a live-preview `<style>` tag in the editor (handled by the
  *      JS panel component in src/custom-css-panel.js — no PHP needed).
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.10
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\CustomCss;
+namespace FlinkformPro\CustomCss;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +35,7 @@ final class Module {
 	 */
 	public function register(): void {
 		add_filter( 'register_block_type_args', [ $this, 'add_attribute' ], 10, 2 );
-		add_filter( 'render_block_perform/form', [ $this, 'inject_style' ], 10, 2 );
+		add_filter( 'render_block_flinkform/form', [ $this, 'inject_style' ], 10, 2 );
 	}
 
 	/**
@@ -46,7 +46,7 @@ final class Module {
 	 * @return array<string, mixed>
 	 */
 	public function add_attribute( array $args, string $block_type ): array {
-		if ( 'perform/form' !== $block_type ) {
+		if ( 'flinkform/form' !== $block_type ) {
 			return $args;
 		}
 
@@ -79,7 +79,7 @@ final class Module {
 			: '';
 
 		$style_id = '' !== $form_id
-			? ' id="perform-custom-css-' . esc_attr( $form_id ) . '"'
+			? ' id="flinkform-custom-css-' . esc_attr( $form_id ) . '"'
 			: '';
 
 		return '<style' . $style_id . '>' . $css . '</style>' . $block_content;

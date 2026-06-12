@@ -9,11 +9,11 @@
  *   A-b — THIS SLICE: the phpmailer_init hook that actually routes
  *          outgoing mail through the configured SMTP server, the
  *          wp_mail_from{,_name} overrides, and the plugin-conflict
- *          detection that self-disables PerForm SMTP whenever a
+ *          detection that self-disables Flinkform SMTP whenever a
  *          dedicated SMTP plugin is already active.
  *   A-c — Test-email button + per-provider quick-start help polish.
  *
- * Naming choice — Smtp\Transport vs. Mailer\Transport: PerForm already
+ * Naming choice — Smtp\Transport vs. Mailer\Transport: Flinkform already
  * has `Notifications\Mailer` (which composes the notification + the
  * confirmation mail). Putting the transport-layer code under
  * `Smtp\` keeps "what to send" (Notifications) and "how to send"
@@ -34,19 +34,19 @@
  *     "last writer wins" never becomes a fight.
  *
  *   - The admin-notice hook is only attached inside wp-admin. The
- *     notice fires on every admin page (not just PerForm pages),
- *     so an operator who enabled PerForm SMTP and then installed
+ *     notice fires on every admin page (not just Flinkform pages),
+ *     so an operator who enabled Flinkform SMTP and then installed
  *     WP Mail SMTP can't miss the warning.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.1
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Smtp;
+namespace FlinkformPro\Smtp;
 
-use PerFormPro\Settings\Secret;
+use FlinkformPro\Settings\Secret;
 use PHPMailer\PHPMailer\PHPMailer;
 
 defined( 'ABSPATH' ) || exit;
@@ -60,7 +60,7 @@ final class Transport {
 	 * Plugin slug → display label map of known SMTP plugins we
 	 * defer to.
 	 *
-	 * Whenever any of these is active and PerForm SMTP is also
+	 * Whenever any of these is active and Flinkform SMTP is also
 	 * enabled, the Transport self-disables: phpmailer_init returns
 	 * without touching the PHPMailer instance, the wp_mail_from
 	 * filters return the value unchanged, and an admin-notice
@@ -193,7 +193,7 @@ final class Transport {
 	/**
 	 * wp_mail_from filter — replaces the WP default From address
 	 * when the operator configured one. Leaves the original value
-	 * alone whenever PerForm SMTP is disabled OR a rival plugin is
+	 * alone whenever Flinkform SMTP is disabled OR a rival plugin is
 	 * active OR no override is configured.
 	 *
 	 * @param string $from
@@ -230,8 +230,8 @@ final class Transport {
 
 	/**
 	 * Admin-notice renderer. Fires on every wp-admin page render
-	 * (not just PerForm pages) so an operator can't accidentally
-	 * leave the site in a "PerForm SMTP enabled + WP Mail SMTP
+	 * (not just Flinkform pages) so an operator can't accidentally
+	 * leave the site in a "Flinkform SMTP enabled + WP Mail SMTP
 	 * active" state without seeing the warning.
 	 *
 	 * Notice is dismissible per-page-render but not persistently
@@ -253,11 +253,11 @@ final class Transport {
 
 		printf(
 			'<div class="notice notice-warning is-dismissible"><p><strong>%1$s</strong> %2$s</p></div>',
-			esc_html__( 'PerForm SMTP is self-disabled.', 'perform-forms-pro' ),
+			esc_html__( 'Flinkform SMTP is self-disabled.', 'flinkform-pro' ),
 			esc_html(
 				sprintf(
 					/* translators: %s: name of the conflicting plugin */
-					__( 'The plugin "%s" is active and already manages SMTP delivery — PerForm has disabled its own override to avoid a double configuration. Deactivate the other SMTP plugin (or disable PerForm SMTP) to clear this notice.', 'perform-forms-pro' ),
+					__( 'The plugin "%s" is active and already manages SMTP delivery — Flinkform has disabled its own override to avoid a double configuration. Deactivate the other SMTP plugin (or disable Flinkform SMTP) to clear this notice.', 'flinkform-pro' ),
 					$conflict
 				)
 			)
@@ -294,7 +294,7 @@ final class Transport {
 	 * (form submissions, password resets, contact-form mails).
 	 *
 	 * Multisite network-activated plugins are NOT scanned;
-	 * PerForm's Multisite support is post-MVP.
+	 * Flinkform's Multisite support is post-MVP.
 	 *
 	 * Public so the SMTP-settings diagnostic block can show the
 	 * same conflict label it would show in the admin notice.
@@ -354,24 +354,24 @@ final class Transport {
 
 		if ( '' === $host ) {
 			$configured       = false;
-			$configured_notes = __( 'No SMTP host set.', 'perform-forms-pro' );
+			$configured_notes = __( 'No SMTP host set.', 'flinkform-pro' );
 		} elseif ( $port < 1 ) {
 			$configured       = false;
-			$configured_notes = __( 'No SMTP port set.', 'perform-forms-pro' );
+			$configured_notes = __( 'No SMTP port set.', 'flinkform-pro' );
 		} elseif ( $auth ) {
 			$has_username = '' !== (string) $settings['username'];
 			$has_password_cipher = '' !== (string) $settings['password'];
 			if ( ! $has_username ) {
 				$configured       = false;
-				$configured_notes = __( 'Authentication is on but no username is set.', 'perform-forms-pro' );
+				$configured_notes = __( 'Authentication is on but no username is set.', 'flinkform-pro' );
 			} elseif ( ! $has_password_cipher ) {
 				$configured       = false;
-				$configured_notes = __( 'Authentication is on but no password is stored.', 'perform-forms-pro' );
+				$configured_notes = __( 'Authentication is on but no password is stored.', 'flinkform-pro' );
 			} else {
 				$plaintext = Secret::decrypt( (string) $settings['password'] );
 				if ( '' === $plaintext ) {
 					$configured       = false;
-					$configured_notes = __( 'Stored password cannot be decrypted — most likely the wp-config.php auth salt was rotated. Re-enter your password.', 'perform-forms-pro' );
+					$configured_notes = __( 'Stored password cannot be decrypted — most likely the wp-config.php auth salt was rotated. Re-enter your password.', 'flinkform-pro' );
 				}
 			}
 		}

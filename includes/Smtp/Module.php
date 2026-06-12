@@ -1,27 +1,27 @@
 <?php
 /**
- * SMTP module wiring (PerForm Pro).
+ * SMTP module wiring (Flinkform Pro).
  *
  * Boots the SMTP subsystem now that it lives in Pro:
  *
  *   - Transport — the phpmailer_init / wp_mail_from overrides + conflict
  *     detection (registers its own hooks on `init`).
  *   - SMTP settings page — re-attached as a submenu under the free core's
- *     PerForm menu (Menu::PARENT_SLUG) and dispatched on admin_init, exactly
+ *     Flinkform menu (Menu::PARENT_SLUG) and dispatched on admin_init, exactly
  *     as the free core's Menu did before the move.
  *
  * The free core no longer registers the SMTP page or transport; this wirer is
- * the single replacement, hooked from `perform_register_modules`.
+ * the single replacement, hooked from `flinkform_register_modules`.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.1
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Smtp;
+namespace FlinkformPro\Smtp;
 
-use PerForm\Admin\Menu;
+use Flinkform\Admin\Menu;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,21 +39,21 @@ final class Module {
 		( new Transport() )->register();
 
 		// Priority 20: after the free core's Menu::register_pages() (priority
-		// 10) so the parent PerForm menu exists before we add the submenu.
+		// 10) so the parent Flinkform menu exists before we add the submenu.
 		add_action( 'admin_menu', [ $this, 'register_page' ], 20 );
 		add_action( 'admin_init', [ $this, 'dispatch' ] );
 	}
 
 	/**
-	 * Add the SMTP settings submenu under the PerForm menu.
+	 * Add the SMTP settings submenu under the Flinkform menu.
 	 *
 	 * @return void
 	 */
 	public function register_page(): void {
 		add_submenu_page(
 			Menu::PARENT_SLUG,
-			__( 'SMTP', 'perform-forms-pro' ),
-			__( 'SMTP', 'perform-forms-pro' ),
+			__( 'SMTP', 'flinkform-pro' ),
+			__( 'SMTP', 'flinkform-pro' ),
 			Menu::CAPABILITY,
 			SmtpPage::SLUG,
 			[ $this, 'render_page' ]

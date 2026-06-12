@@ -4,18 +4,18 @@
  *
  * Renders the global "Webhook Log" page: every dispatched delivery,
  * one row per attempt, with status / response / retry-clock so the
- * site owner can see what's going through their PerForm at a glance.
+ * site owner can see what's going through their Flinkform at a glance.
  *
  * Mirrors the SubmissionsListTable structure — same column callback
  * convention, same pagination wiring, same single-row action set.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
 use WP_List_Table;
 
@@ -52,14 +52,14 @@ final class WebhookLogListTable extends WP_List_Table {
 	 */
 	public function get_columns(): array {
 		return [
-			'id'            => __( 'ID', 'perform-forms-pro' ),
-			'webhook'       => __( 'Webhook', 'perform-forms-pro' ),
-			'submission'    => __( 'Submission', 'perform-forms-pro' ),
-			'status'        => __( 'Status', 'perform-forms-pro' ),
-			'response_code' => __( 'Code', 'perform-forms-pro' ),
-			'attempt'       => __( 'Attempt', 'perform-forms-pro' ),
-			'created_at'    => __( 'Created', 'perform-forms-pro' ),
-			'updated_at'    => __( 'Updated', 'perform-forms-pro' ),
+			'id'            => __( 'ID', 'flinkform-pro' ),
+			'webhook'       => __( 'Webhook', 'flinkform-pro' ),
+			'submission'    => __( 'Submission', 'flinkform-pro' ),
+			'status'        => __( 'Status', 'flinkform-pro' ),
+			'response_code' => __( 'Code', 'flinkform-pro' ),
+			'attempt'       => __( 'Attempt', 'flinkform-pro' ),
+			'created_at'    => __( 'Created', 'flinkform-pro' ),
+			'updated_at'    => __( 'Updated', 'flinkform-pro' ),
 		];
 	}
 
@@ -144,7 +144,7 @@ final class WebhookLogListTable extends WP_List_Table {
 	 * @return void
 	 */
 	public function no_items(): void {
-		esc_html_e( 'No webhook deliveries yet.', 'perform-forms-pro' );
+		esc_html_e( 'No webhook deliveries yet.', 'flinkform-pro' );
 	}
 
 	public function column_default( $item, $column_name ): string {
@@ -162,7 +162,7 @@ final class WebhookLogListTable extends WP_List_Table {
 		$url   = (string) ( $item['webhook_url'] ?? '' );
 
 		if ( '' === $label && '' === $url ) {
-			return '<em>' . esc_html__( '(deleted)', 'perform-forms-pro' ) . '</em>';
+			return '<em>' . esc_html__( '(deleted)', 'flinkform-pro' ) . '</em>';
 		}
 
 		$primary = $label !== '' ? esc_html( $label ) : esc_html( $url );
@@ -176,12 +176,12 @@ final class WebhookLogListTable extends WP_List_Table {
 	public function column_submission( $item ): string {
 		$sid = isset( $item['submission_id'] ) ? (int) $item['submission_id'] : 0;
 		if ( $sid <= 0 ) {
-			return '<em>' . esc_html__( 'Test', 'perform-forms-pro' ) . '</em>';
+			return '<em>' . esc_html__( 'Test', 'flinkform-pro' ) . '</em>';
 		}
 
 		$url = add_query_arg(
 			[
-				'page'   => 'perform-submissions',
+				'page'   => 'flinkform-submissions',
 				'action' => 'view',
 				'id'     => $sid,
 			],
@@ -259,12 +259,12 @@ final class WebhookLogListTable extends WP_List_Table {
 		$current = isset( $_REQUEST['status'] ) ? sanitize_key( wp_unslash( $_REQUEST['status'] ) ) : '';
 
 		$statuses = [
-			''           => __( 'All statuses', 'perform-forms-pro' ),
-			'pending'    => __( 'Pending', 'perform-forms-pro' ),
-			'processing' => __( 'Processing', 'perform-forms-pro' ),
-			'retrying'   => __( 'Retrying', 'perform-forms-pro' ),
-			'success'    => __( 'Success', 'perform-forms-pro' ),
-			'failed'     => __( 'Failed', 'perform-forms-pro' ),
+			''           => __( 'All statuses', 'flinkform-pro' ),
+			'pending'    => __( 'Pending', 'flinkform-pro' ),
+			'processing' => __( 'Processing', 'flinkform-pro' ),
+			'retrying'   => __( 'Retrying', 'flinkform-pro' ),
+			'success'    => __( 'Success', 'flinkform-pro' ),
+			'failed'     => __( 'Failed', 'flinkform-pro' ),
 		];
 
 		echo '<div class="alignleft actions">';
@@ -278,7 +278,7 @@ final class WebhookLogListTable extends WP_List_Table {
 			);
 		}
 		echo '</select>';
-		submit_button( __( 'Filter', 'perform-forms-pro' ), '', 'filter_action', false );
+		submit_button( __( 'Filter', 'flinkform-pro' ), '', 'filter_action', false );
 		echo '</div>';
 	}
 

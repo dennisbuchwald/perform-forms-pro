@@ -2,7 +2,7 @@
 /**
  * Submission → webhook delivery bridge.
  *
- * Subscribes to the existing `perform_after_submission` hook (added
+ * Subscribes to the existing `flinkform_after_submission` hook (added
  * in Phase 3a alongside the Mailer) and enqueues one delivery row
  * per active webhook for the form. Dispatch is asynchronous: the
  * submission handler returns immediately, the user lands on the
@@ -13,13 +13,13 @@
  * Conditional delivery + field mapping (Phase 6d) plug in here too —
  * for now this just gates on `is_active` and enqueues unconditionally.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -44,7 +44,7 @@ final class SubmissionListener {
 	 * @return void
 	 */
 	public function register(): void {
-		add_action( 'perform_after_submission', [ $this, 'on_submission' ], 20, 4 );
+		add_action( 'flinkform_after_submission', [ $this, 'on_submission' ], 20, 4 );
 	}
 
 	/**

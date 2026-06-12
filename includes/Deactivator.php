@@ -1,21 +1,21 @@
 <?php
 /**
- * PerForm Pro deactivation handler.
+ * Flinkform Pro deactivation handler.
  *
  * Clears the dispatcher cron so WordPress stops firing into a hook with no
  * callback once Pro is inactive. User data (webhooks, deliveries) is NEVER
  * touched here — that contract belongs to uninstall.php — so a license lapse
  * or temporary deactivation preserves everything.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro;
+namespace FlinkformPro;
 
-use PerFormPro\Webhooks\Dispatcher;
+use FlinkformPro\Webhooks\Dispatcher;
 
 defined( 'ABSPATH' ) || exit;
 

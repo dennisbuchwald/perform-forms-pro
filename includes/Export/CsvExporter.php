@@ -1,6 +1,6 @@
 <?php
 /**
- * CSV exporter for submissions (PerForm Pro).
+ * CSV exporter for submissions (Flinkform Pro).
  *
  * Streams a CSV download for the rows matching a filter set. Field columns are
  * derived dynamically by walking every selected submission — this keeps an
@@ -11,15 +11,15 @@
  * It still reads through the free core's submissions Repository, which stays in
  * the core (the data and its storage are free; exporting it in bulk is Pro).
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.0
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Export;
+namespace FlinkformPro\Export;
 
-use PerForm\Submissions\Repository;
+use Flinkform\Submissions\Repository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -54,7 +54,7 @@ final class CsvExporter {
 		// fine, but the pattern scales for later.
 		$rows     = $this->collect( $filters );
 		$columns  = $this->discover_columns( $rows );
-		$filename = 'perform-submissions-' . gmdate( 'Ymd-His' ) . '.csv';
+		$filename = 'flinkform-submissions-' . gmdate( 'Ymd-His' ) . '.csv';
 
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );

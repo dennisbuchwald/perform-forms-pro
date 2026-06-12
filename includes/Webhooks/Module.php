@@ -1,6 +1,6 @@
 <?php
 /**
- * Webhooks module wiring (PerForm Pro).
+ * Webhooks module wiring (Flinkform Pro).
  *
  * Boots the whole webhook subsystem now that it lives in Pro (slice M-c-d-2):
  * the REST CRUD controller, the cron dispatcher, the submission listener that
@@ -11,17 +11,17 @@
  * Mirrors the wiring the free core's Plugin::init() used to do before webhooks
  * became a Pro feature.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
-use PerForm\Admin\Menu;
-use PerForm\Submissions\Repository as SubmissionsRepository;
-use PerFormPro\Database\Schema;
+use Flinkform\Admin\Menu;
+use Flinkform\Submissions\Repository as SubmissionsRepository;
+use FlinkformPro\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -45,7 +45,7 @@ final class Module {
 		$deliverer  = new Deliverer( new SubmissionsRepository() );
 
 		// Runtime: REST CRUD, the cron dispatcher, and the listener that
-		// bridges perform_after_submission into the delivery queue.
+		// bridges flinkform_after_submission into the delivery queue.
 		( new RestController( $webhooks, $deliverer ) )->register();
 		( new Dispatcher( $webhooks, $deliveries, $deliverer ) )->register();
 		( new SubmissionListener( $webhooks, $deliveries ) )->register();
@@ -63,18 +63,18 @@ final class Module {
 	}
 
 	/**
-	 * Add the Webhook Log submenu under the PerForm menu.
+	 * Add the Webhook Log submenu under the Flinkform menu.
 	 *
 	 * Priority 20: after the free core's Menu::register_pages() (priority 10)
-	 * so the parent PerForm menu exists.
+	 * so the parent Flinkform menu exists.
 	 *
 	 * @return void
 	 */
 	public function register_log_page(): void {
 		add_submenu_page(
 			Menu::PARENT_SLUG,
-			__( 'Webhook Log', 'perform-forms-pro' ),
-			__( 'Webhook Log', 'perform-forms-pro' ),
+			__( 'Webhook Log', 'flinkform-pro' ),
+			__( 'Webhook Log', 'flinkform-pro' ),
 			Menu::CAPABILITY,
 			WebhookLogPage::SLUG,
 			[ $this, 'render_log_page' ]

@@ -1,6 +1,6 @@
 <?php
 /**
- * Webhook repository — CRUD against `{prefix}_perform_webhooks`.
+ * Webhook repository — CRUD against `{prefix}_flinkform_webhooks`.
  *
  * Single point of access to webhook rows. Every method returns plain
  * PHP arrays (not Webhook objects) because every consumer of this data
@@ -8,15 +8,15 @@
  * serialise it back to JSON or feed it to wp_remote_request anyway, so
  * an extra DTO layer would buy nothing.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
-use PerFormPro\Database\Schema;
+use FlinkformPro\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 

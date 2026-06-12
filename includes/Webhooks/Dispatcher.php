@@ -2,7 +2,7 @@
 /**
  * Webhook dispatcher — drains the delivery queue.
  *
- * Runs on the `perform_dispatch_webhooks` cron hook. Pulls due
+ * Runs on the `flinkform_dispatch_webhooks` cron hook. Pulls due
  * deliveries from `DeliveryRepository`, claims each row atomically
  * (so duplicate cron ticks can't double-send), invokes the
  * `Deliverer` for the actual HTTP request, and persists the result.
@@ -15,13 +15,13 @@
  *      `SubmissionListener` so new deliveries dispatch within
  *      seconds, not minutes.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -30,8 +30,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Dispatcher {
 
-	public const CRON_HOOK     = 'perform_dispatch_webhooks';
-	public const CRON_SCHEDULE = 'perform_every_minute';
+	public const CRON_HOOK     = 'flinkform_dispatch_webhooks';
+	public const CRON_SCHEDULE = 'flinkform_every_minute';
 
 	/**
 	 * Maximum deliveries processed per cron tick. Caps how much HTTP
@@ -90,7 +90,7 @@ final class Dispatcher {
 				// string only ever surfaces in admin diagnostic UIs
 				// (WP-Crontrol etc.); the translation loss is
 				// acceptable for the safer load order.
-				'display'  => 'Every Minute (PerForm)',
+				'display'  => 'Every Minute (Flinkform)',
 			];
 		}
 		return $schedules;

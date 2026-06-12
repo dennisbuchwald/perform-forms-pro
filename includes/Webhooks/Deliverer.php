@@ -7,15 +7,15 @@
  * returned tuple `[ $code, $body ]`. The repository takes care of
  * the persistence side of things; this class deals only in HTTP.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
-use PerForm\Submissions\Repository as SubmissionsRepository;
+use Flinkform\Submissions\Repository as SubmissionsRepository;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -85,9 +85,9 @@ final class Deliverer {
 				'url'  => (string) home_url( '/' ),
 			],
 			'fields'        => [
-				'name'    => 'PerForm Test',
+				'name'    => 'Flinkform Test',
 				'email'   => 'test@example.com',
-				'message' => 'This is a sample payload sent from the PerForm inspector.',
+				'message' => 'This is a sample payload sent from the Flinkform inspector.',
 			],
 		];
 
@@ -228,7 +228,7 @@ final class Deliverer {
 		];
 
 		// Serialise the payload into the body (POST) or query string (GET)
-		// according to the chosen format. Form-encoded uses `_perform_`
+		// according to the chosen format. Form-encoded uses `_flinkform_`
 		// prefixed meta keys for the envelope fields so receivers that
 		// parse a flat $_POST don't have to know about a nested
 		// `fields[name]=value` array syntax.
@@ -243,7 +243,7 @@ final class Deliverer {
 			$args['body']                    = $this->flatten_for_form_encoded( $payload );
 		}
 
-		$args['user-agent'] = 'PerForm/' . PERFORM_VERSION . ' (+' . home_url( '/' ) . ')';
+		$args['user-agent'] = 'Flinkform/' . FLINKFORM_VERSION . ' (+' . home_url( '/' ) . ')';
 
 		$response = wp_remote_request( $url, $args );
 
@@ -267,7 +267,7 @@ final class Deliverer {
 	 * Flatten the nested payload into a string=>string map suitable
 	 * for `application/x-www-form-urlencoded` or query-string use.
 	 * Field values pass through directly under their field names;
-	 * envelope keys get a `_perform_` prefix so they don't collide
+	 * envelope keys get a `_flinkform_` prefix so they don't collide
 	 * with user-defined field names that happen to be called
 	 * "form_id" or "site".
 	 *
@@ -278,10 +278,10 @@ final class Deliverer {
 		$out = [];
 
 		$envelope = [
-			'form_id'       => '_perform_form_id',
-			'submission_id' => '_perform_submission_id',
-			'submitted_at'  => '_perform_submitted_at',
-			'is_test'       => '_perform_is_test',
+			'form_id'       => '_flinkform_form_id',
+			'submission_id' => '_flinkform_submission_id',
+			'submitted_at'  => '_flinkform_submitted_at',
+			'is_test'       => '_flinkform_is_test',
 		];
 		foreach ( $envelope as $key => $target ) {
 			if ( isset( $payload[ $key ] ) ) {
@@ -293,7 +293,7 @@ final class Deliverer {
 
 		if ( isset( $payload['site'] ) && is_array( $payload['site'] ) ) {
 			foreach ( $payload['site'] as $sk => $sv ) {
-				$out[ '_perform_site_' . $sk ] = is_scalar( $sv ) ? (string) $sv : (string) wp_json_encode( $sv );
+				$out[ '_flinkform_site_' . $sk ] = is_scalar( $sv ) ? (string) $sv : (string) wp_json_encode( $sv );
 			}
 		}
 

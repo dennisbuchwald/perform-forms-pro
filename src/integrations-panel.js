@@ -2,18 +2,18 @@
  * Integrations / Webhooks inspector panel.
  *
  * Loads the webhook list for the current form from the
- * `/perform/v1/webhooks` REST endpoint on mount, lets the author
+ * `/flinkform/v1/webhooks` REST endpoint on mount, lets the author
  * add / edit / delete entries, and persists every change immediately
  * — no "Save" button on the parent block needed, because webhooks
  * live in their own DB table outside the block tree (Phase 6
- * architecture decision, see PERFORM_ROADMAP.md Phase 6).
+ * architecture decision, see FLINKFORM_ROADMAP.md Phase 6).
  *
  * Each webhook renders as its own nested PanelBody so authors get
  * the familiar WordPress accordion UX. Header editing is a tiny
  * key/value list with add / remove buttons — fine for a handful
  * of auth tokens, no full table component needed.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.4
  */
 import { __, sprintf } from '@wordpress/i18n';
@@ -59,7 +59,7 @@ export default function IntegrationsPanel( { formId, formFields = [] } ) {
 
 		let cancelled = false;
 		setStatus( 'loading' );
-		apiFetch( { path: `/perform/v1/webhooks?form_id=${ encodeURIComponent( formId ) }` } )
+		apiFetch( { path: `/flinkform/v1/webhooks?form_id=${ encodeURIComponent( formId ) }` } )
 			.then( ( data ) => {
 				if ( cancelled ) {
 					return;
@@ -71,7 +71,7 @@ export default function IntegrationsPanel( { formId, formFields = [] } ) {
 				if ( cancelled ) {
 					return;
 				}
-				setError( err?.message ?? __( 'Could not load webhooks.', 'perform-forms-pro' ) );
+				setError( err?.message ?? __( 'Could not load webhooks.', 'flinkform-pro' ) );
 				setStatus( 'error' );
 			} );
 
@@ -84,13 +84,13 @@ export default function IntegrationsPanel( { formId, formFields = [] } ) {
 		setError( '' );
 		try {
 			const created = await apiFetch( {
-				path: '/perform/v1/webhooks',
+				path: '/flinkform/v1/webhooks',
 				method: 'POST',
 				data: { ...BLANK_WEBHOOK, form_id: formId, url: 'https://' },
 			} );
 			setWebhooks( ( prev ) => [ ...prev, created ] );
 		} catch ( err ) {
-			setError( err?.message ?? __( 'Could not create webhook.', 'perform-forms-pro' ) );
+			setError( err?.message ?? __( 'Could not create webhook.', 'flinkform-pro' ) );
 		}
 	}, [ formId ] );
 
@@ -98,35 +98,35 @@ export default function IntegrationsPanel( { formId, formFields = [] } ) {
 		setError( '' );
 		try {
 			const updated = await apiFetch( {
-				path: `/perform/v1/webhooks/${ id }`,
+				path: `/flinkform/v1/webhooks/${ id }`,
 				method: 'PUT',
 				data: patch,
 			} );
 			setWebhooks( ( prev ) => prev.map( ( wh ) => ( wh.id === id ? updated : wh ) ) );
 		} catch ( err ) {
-			setError( err?.message ?? __( 'Could not update webhook.', 'perform-forms-pro' ) );
+			setError( err?.message ?? __( 'Could not update webhook.', 'flinkform-pro' ) );
 		}
 	}, [] );
 
 	const deleteWebhook = useCallback( async ( id ) => {
 		// eslint-disable-next-line no-alert
-		if ( ! window.confirm( __( 'Delete this webhook? Its delivery log will also be removed.', 'perform-forms-pro' ) ) ) {
+		if ( ! window.confirm( __( 'Delete this webhook? Its delivery log will also be removed.', 'flinkform-pro' ) ) ) {
 			return;
 		}
 		setError( '' );
 		try {
 			await apiFetch( {
-				path: `/perform/v1/webhooks/${ id }`,
+				path: `/flinkform/v1/webhooks/${ id }`,
 				method: 'DELETE',
 			} );
 			setWebhooks( ( prev ) => prev.filter( ( wh ) => wh.id !== id ) );
 		} catch ( err ) {
-			setError( err?.message ?? __( 'Could not delete webhook.', 'perform-forms-pro' ) );
+			setError( err?.message ?? __( 'Could not delete webhook.', 'flinkform-pro' ) );
 		}
 	}, [] );
 
 	return (
-		<PanelBody title={ __( 'Integrations', 'perform-forms-pro' ) } initialOpen={ false }>
+		<PanelBody title={ __( 'Integrations', 'flinkform-pro' ) } initialOpen={ false }>
 			{ status === 'loading' && (
 				<div style={ { textAlign: 'center', padding: '8px 0' } }>
 					<Spinner />
@@ -141,7 +141,7 @@ export default function IntegrationsPanel( { formId, formFields = [] } ) {
 
 			{ status === 'ready' && webhooks.length === 0 && (
 				<p style={ { fontSize: '13px', opacity: 0.75, marginTop: 0 } }>
-					{ __( 'No webhooks yet. Add one to send submissions to an external URL (Zapier, n8n, Make, your own API).', 'perform-forms-pro' ) }
+					{ __( 'No webhooks yet. Add one to send submissions to an external URL (Zapier, n8n, Make, your own API).', 'flinkform-pro' ) }
 				</p>
 			) }
 
@@ -162,7 +162,7 @@ export default function IntegrationsPanel( { formId, formFields = [] } ) {
 					style={ { marginTop: '8px' } }
 					__next40pxDefaultSize
 				>
-					{ __( 'Add webhook', 'perform-forms-pro' ) }
+					{ __( 'Add webhook', 'flinkform-pro' ) }
 				</Button>
 			) }
 		</PanelBody>
@@ -188,7 +188,7 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 		setTestState( 'running' );
 		try {
 			const result = await apiFetch( {
-				path: `/perform/v1/webhooks/${ webhook.id }/test`,
+				path: `/flinkform/v1/webhooks/${ webhook.id }/test`,
 				method: 'POST',
 			} );
 			setTestState( {
@@ -200,23 +200,23 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 			setTestState( {
 				ok: false,
 				code: null,
-				body: err?.message ?? __( 'Test request failed.', 'perform-forms-pro' ),
+				body: err?.message ?? __( 'Test request failed.', 'flinkform-pro' ),
 			} );
 		}
 	};
 	const title = webhook.label
 		? webhook.label
-		: ( webhook.url ? truncateUrl( webhook.url ) : __( 'Untitled webhook', 'perform-forms-pro' ) );
+		: ( webhook.url ? truncateUrl( webhook.url ) : __( 'Untitled webhook', 'flinkform-pro' ) );
 
 	return (
 		<PanelBody
 			title={ `${ webhook.is_active ? '● ' : '○ ' }${ title }` }
 			initialOpen={ false }
-			className="perform-webhook-card"
+			className="flinkform-webhook-card"
 		>
 			<TextControl
-				label={ __( 'Label', 'perform-forms-pro' ) }
-				help={ __( 'Optional. Used in the webhook log to identify this destination.', 'perform-forms-pro' ) }
+				label={ __( 'Label', 'flinkform-pro' ) }
+				help={ __( 'Optional. Used in the webhook log to identify this destination.', 'flinkform-pro' ) }
 				value={ webhook.label ?? '' }
 				onChange={ ( value ) => onChange( { label: value } ) }
 				__nextHasNoMarginBottom
@@ -224,7 +224,7 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 			/>
 
 			<TextControl
-				label={ __( 'URL', 'perform-forms-pro' ) }
+				label={ __( 'URL', 'flinkform-pro' ) }
 				value={ webhook.url ?? '' }
 				onChange={ ( value ) => onChange( { url: value } ) }
 				type="url"
@@ -233,7 +233,7 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 			/>
 
 			<ToggleGroupControl
-				label={ __( 'Method', 'perform-forms-pro' ) }
+				label={ __( 'Method', 'flinkform-pro' ) }
 				value={ webhook.method ?? 'POST' }
 				onChange={ ( value ) => onChange( { method: value } ) }
 				isBlock
@@ -245,15 +245,15 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 			</ToggleGroupControl>
 
 			<ToggleGroupControl
-				label={ __( 'Payload format', 'perform-forms-pro' ) }
+				label={ __( 'Payload format', 'flinkform-pro' ) }
 				value={ webhook.format ?? 'json' }
 				onChange={ ( value ) => onChange( { format: value } ) }
 				isBlock
 				__nextHasNoMarginBottom
 				__next40pxDefaultSize
 			>
-				<ToggleGroupControlOption value="json" label={ __( 'JSON', 'perform-forms-pro' ) } />
-				<ToggleGroupControlOption value="form" label={ __( 'Form-encoded', 'perform-forms-pro' ) } />
+				<ToggleGroupControlOption value="json" label={ __( 'JSON', 'flinkform-pro' ) } />
+				<ToggleGroupControlOption value="form" label={ __( 'Form-encoded', 'flinkform-pro' ) } />
 			</ToggleGroupControl>
 
 			<HeadersEditor
@@ -274,8 +274,8 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 			/>
 
 			<ToggleControl
-				label={ __( 'Active', 'perform-forms-pro' ) }
-				help={ __( 'Disable to stop deliveries without losing the configuration.', 'perform-forms-pro' ) }
+				label={ __( 'Active', 'flinkform-pro' ) }
+				help={ __( 'Disable to stop deliveries without losing the configuration.', 'flinkform-pro' ) }
 				checked={ !! webhook.is_active }
 				onChange={ ( value ) => onChange( { is_active: value } ) }
 				__nextHasNoMarginBottom
@@ -290,8 +290,8 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 				__next40pxDefaultSize
 			>
 				{ testState === 'running'
-					? __( 'Sending test…', 'perform-forms-pro' )
-					: __( 'Send test', 'perform-forms-pro' ) }
+					? __( 'Sending test…', 'flinkform-pro' )
+					: __( 'Send test', 'flinkform-pro' ) }
 			</Button>
 
 			{ testState && testState !== 'running' && (
@@ -306,7 +306,7 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 				onClick={ onDelete }
 				style={ { padding: 0 } }
 			>
-				{ __( 'Delete this webhook', 'perform-forms-pro' ) }
+				{ __( 'Delete this webhook', 'flinkform-pro' ) }
 			</Button>
 		</PanelBody>
 	);
@@ -321,7 +321,7 @@ function WebhookCard( { webhook, formFields, onChange, onDelete } ) {
 function TestResult( { result } ) {
 	const isOk = result.ok;
 	const codeLabel = null === result.code
-		? __( 'no response', 'perform-forms-pro' )
+		? __( 'no response', 'flinkform-pro' )
 		: String( result.code );
 
 	return (
@@ -340,12 +340,12 @@ function TestResult( { result } ) {
 				{ isOk
 					? sprintf(
 						/* translators: %s: HTTP status code */
-						__( '✓ HTTP %s', 'perform-forms-pro' ),
+						__( '✓ HTTP %s', 'flinkform-pro' ),
 						codeLabel
 					)
 					: sprintf(
 						/* translators: %s: HTTP status code or "no response" */
-						__( '✕ HTTP %s', 'perform-forms-pro' ),
+						__( '✕ HTTP %s', 'flinkform-pro' ),
 						codeLabel
 					) }
 			</strong>
@@ -416,11 +416,11 @@ function HeadersEditor( { headers, onChange } ) {
 	return (
 		<div style={ { marginBottom: '12px' } }>
 			<p style={ { fontSize: '11px', textTransform: 'uppercase', fontWeight: 500, marginBottom: '4px' } }>
-				{ __( 'Headers', 'perform-forms-pro' ) }
+				{ __( 'Headers', 'flinkform-pro' ) }
 			</p>
 			{ pairs.length === 0 && (
 				<p style={ { fontSize: '12px', opacity: 0.7, margin: '0 0 8px' } }>
-					{ __( 'No custom headers.', 'perform-forms-pro' ) }
+					{ __( 'No custom headers.', 'flinkform-pro' ) }
 				</p>
 			) }
 			{ pairs.map( ( [ key, value ], index ) => (
@@ -430,18 +430,18 @@ function HeadersEditor( { headers, onChange } ) {
 				>
 					<TextControl
 						value={ key }
-						placeholder={ __( 'Header name', 'perform-forms-pro' ) }
+						placeholder={ __( 'Header name', 'flinkform-pro' ) }
 						onChange={ ( v ) => setPair( index, v, value ) }
-						aria-label={ __( 'Header name', 'perform-forms-pro' ) }
+						aria-label={ __( 'Header name', 'flinkform-pro' ) }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 						style={ { flex: 1, minWidth: 0 } }
 					/>
 					<TextControl
 						value={ value }
-						placeholder={ __( 'Value', 'perform-forms-pro' ) }
+						placeholder={ __( 'Value', 'flinkform-pro' ) }
 						onChange={ ( v ) => setPair( index, key, v ) }
-						aria-label={ __( 'Header value', 'perform-forms-pro' ) }
+						aria-label={ __( 'Header value', 'flinkform-pro' ) }
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
 						style={ { flex: 1, minWidth: 0 } }
@@ -450,7 +450,7 @@ function HeadersEditor( { headers, onChange } ) {
 						isDestructive
 						variant="tertiary"
 						onClick={ () => removePair( index ) }
-						label={ __( 'Remove header', 'perform-forms-pro' ) }
+						label={ __( 'Remove header', 'flinkform-pro' ) }
 						showTooltip
 					>
 						×
@@ -462,7 +462,7 @@ function HeadersEditor( { headers, onChange } ) {
 				size="small"
 				onClick={ addPair }
 			>
-				{ __( '+ Add header', 'perform-forms-pro' ) }
+				{ __( '+ Add header', 'flinkform-pro' ) }
 			</Button>
 		</div>
 	);
@@ -487,17 +487,17 @@ function ConditionEditor( { webhook, formFields, onChange } ) {
 	const usesValue = operator !== 'is_empty' && operator !== 'is_not_empty';
 
 	const operatorOptions = [
-		{ value: '', label: __( '— Select operator —', 'perform-forms-pro' ) },
-		{ value: 'equals', label: __( 'equals', 'perform-forms-pro' ) },
-		{ value: 'not_equals', label: __( 'does not equal', 'perform-forms-pro' ) },
-		{ value: 'contains', label: __( 'contains', 'perform-forms-pro' ) },
-		{ value: 'not_contains', label: __( 'does not contain', 'perform-forms-pro' ) },
-		{ value: 'is_empty', label: __( 'is empty', 'perform-forms-pro' ) },
-		{ value: 'is_not_empty', label: __( 'is not empty', 'perform-forms-pro' ) },
+		{ value: '', label: __( '— Select operator —', 'flinkform-pro' ) },
+		{ value: 'equals', label: __( 'equals', 'flinkform-pro' ) },
+		{ value: 'not_equals', label: __( 'does not equal', 'flinkform-pro' ) },
+		{ value: 'contains', label: __( 'contains', 'flinkform-pro' ) },
+		{ value: 'not_contains', label: __( 'does not contain', 'flinkform-pro' ) },
+		{ value: 'is_empty', label: __( 'is empty', 'flinkform-pro' ) },
+		{ value: 'is_not_empty', label: __( 'is not empty', 'flinkform-pro' ) },
 	];
 
 	const fieldOptions = [
-		{ value: '', label: __( '— Select a field —', 'perform-forms-pro' ) },
+		{ value: '', label: __( '— Select a field —', 'flinkform-pro' ) },
 		...formFields.map( ( f ) => ( {
 			value: f.name,
 			label: f.label ? `${ f.label } (${ f.name })` : f.name,
@@ -525,8 +525,8 @@ function ConditionEditor( { webhook, formFields, onChange } ) {
 	return (
 		<div style={ { marginBottom: '12px' } }>
 			<ToggleControl
-				label={ __( 'Conditional delivery', 'perform-forms-pro' ) }
-				help={ __( 'Only send this webhook when the submission matches the rule below.', 'perform-forms-pro' ) }
+				label={ __( 'Conditional delivery', 'flinkform-pro' ) }
+				help={ __( 'Only send this webhook when the submission matches the rule below.', 'flinkform-pro' ) }
 				checked={ isEnabled }
 				onChange={ handleToggle }
 				__nextHasNoMarginBottom
@@ -536,12 +536,12 @@ function ConditionEditor( { webhook, formFields, onChange } ) {
 				<div style={ { paddingLeft: '12px', borderLeft: '2px solid #ddd', marginTop: '8px' } }>
 					{ formFields.length === 0 && (
 						<Notice status="warning" isDismissible={ false }>
-							{ __( 'Add at least one field block to this form to use conditional delivery.', 'perform-forms-pro' ) }
+							{ __( 'Add at least one field block to this form to use conditional delivery.', 'flinkform-pro' ) }
 						</Notice>
 					) }
 
 					<SelectControl
-						label={ __( 'Field', 'perform-forms-pro' ) }
+						label={ __( 'Field', 'flinkform-pro' ) }
 						value={ webhook.condition_field ?? '' }
 						options={ fieldOptions }
 						onChange={ ( value ) => onChange( { condition_field: value } ) }
@@ -550,7 +550,7 @@ function ConditionEditor( { webhook, formFields, onChange } ) {
 					/>
 
 					<SelectControl
-						label={ __( 'Operator', 'perform-forms-pro' ) }
+						label={ __( 'Operator', 'flinkform-pro' ) }
 						value={ operator }
 						options={ operatorOptions }
 						onChange={ ( value ) => {
@@ -569,10 +569,10 @@ function ConditionEditor( { webhook, formFields, onChange } ) {
 
 					{ usesValue && (
 						<TextControl
-							label={ __( 'Value', 'perform-forms-pro' ) }
+							label={ __( 'Value', 'flinkform-pro' ) }
 							value={ webhook.condition_value ?? '' }
 							onChange={ ( value ) => onChange( { condition_value: value } ) }
-							help={ __( 'Comparison is case-insensitive for contains / not contains.', 'perform-forms-pro' ) }
+							help={ __( 'Comparison is case-insensitive for contains / not contains.', 'flinkform-pro' ) }
 							__nextHasNoMarginBottom
 							__next40pxDefaultSize
 						/>
@@ -616,8 +616,8 @@ function FieldMappingEditor( { mapping, formFields, onChange } ) {
 	return (
 		<div style={ { marginBottom: '12px' } }>
 			<ToggleControl
-				label={ __( 'Rename fields in payload', 'perform-forms-pro' ) }
-				help={ __( 'Send fields under different keys than their internal names. Leave a target empty to pass that field through unchanged.', 'perform-forms-pro' ) }
+				label={ __( 'Rename fields in payload', 'flinkform-pro' ) }
+				help={ __( 'Send fields under different keys than their internal names. Leave a target empty to pass that field through unchanged.', 'flinkform-pro' ) }
 				checked={ hasAnyMapping || ( formFields.length > 0 && Object.keys( mapping ).length > 0 ) }
 				onChange={ handleToggle }
 				__nextHasNoMarginBottom
@@ -641,7 +641,7 @@ function FieldMappingEditor( { mapping, formFields, onChange } ) {
 								onChange={ ( e ) => setTarget( field.name, e.target.value ) }
 								aria-label={ sprintf(
 									/* translators: %s: source field name. */
-									__( 'Payload key for field “%s”', 'perform-forms-pro' ),
+									__( 'Payload key for field “%s”', 'flinkform-pro' ),
 									field.name
 								) }
 								style={ { flex: 1, minWidth: 0 } }

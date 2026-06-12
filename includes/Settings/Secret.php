@@ -18,22 +18,22 @@
  *
  * Key derivation: SHA-256 over wp_salt('auth'). The auth salt is
  * site-specific and lives in wp-config.php; rotating it invalidates
- * every PerForm-encrypted secret on the site. That's intentional —
+ * every Flinkform-encrypted secret on the site. That's intentional —
  * the operator just re-enters credentials, and we never have to
  * deal with key-rotation migrations inside the plugin.
  *
- * Cipher output format: "perform_enc_v1:<base64(iv || ciphertext)>".
+ * Cipher output format: "flinkform_enc_v1:<base64(iv || ciphertext)>".
  * The version prefix is mandatory so a future cipher upgrade (e.g.
  * AES-256-GCM as v2) can co-exist with v1 ciphers on the same install
  * without forcing a migration script.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.1.0
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Settings;
+namespace FlinkformPro\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -64,14 +64,14 @@ final class Secret {
 	private const IV_LEN = 16;
 
 	/**
-	 * Cipher-format version prefix. Bump (to perform_enc_v2 etc.)
+	 * Cipher-format version prefix. Bump (to flinkform_enc_v2 etc.)
 	 * if we ever switch the cipher or the encoding — decrypt() will
 	 * still recognise v1 entries because each version-branch can
 	 * keep its own dispatch arm.
 	 *
 	 * @var string
 	 */
-	private const VERSION = 'perform_enc_v1';
+	private const VERSION = 'flinkform_enc_v1';
 
 	/**
 	 * Encrypt a plaintext string for persistence.
@@ -160,7 +160,7 @@ final class Secret {
 	}
 
 	/**
-	 * Cheap "is this value already a PerForm cipher?" check.
+	 * Cheap "is this value already a Flinkform cipher?" check.
 	 *
 	 * Used by save handlers so a re-submitted settings form with an
 	 * unchanged password field does not double-encrypt the existing

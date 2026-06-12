@@ -2,7 +2,7 @@
 /**
  * REST controller for the editor-side Webhook CRUD.
  *
- * Endpoints under `/wp-json/perform/v1/webhooks`:
+ * Endpoints under `/wp-json/flinkform/v1/webhooks`:
  *   GET    /webhooks?form_id=<uuid> — list webhooks for a form
  *   POST   /webhooks                — create a webhook
  *   GET    /webhooks/{id}           — read a single webhook
@@ -13,13 +13,13 @@
  * only consumer, and editing the block tree of any post already
  * requires that capability.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
 use WP_REST_Request;
 use WP_REST_Response;
@@ -32,7 +32,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class RestController {
 
-	public const NAMESPACE = 'perform/v1';
+	public const NAMESPACE = 'flinkform/v1';
 	public const REST_BASE = 'webhooks';
 
 	private Repository $repository;
@@ -161,7 +161,7 @@ final class RestController {
 		$row = $this->repository->find( $id );
 
 		if ( null === $row ) {
-			return new WP_Error( 'perform_webhook_not_found', __( 'Webhook not found.', 'perform-forms-pro' ), [ 'status' => 404 ] );
+			return new WP_Error( 'flinkform_webhook_not_found', __( 'Webhook not found.', 'flinkform-pro' ), [ 'status' => 404 ] );
 		}
 
 		return new WP_REST_Response( $row, 200 );
@@ -177,15 +177,15 @@ final class RestController {
 		$data = $this->extract_item_payload( $request );
 
 		if ( '' === $data['form_id'] ) {
-			return new WP_Error( 'perform_webhook_invalid', __( 'A form id is required.', 'perform-forms-pro' ), [ 'status' => 400 ] );
+			return new WP_Error( 'flinkform_webhook_invalid', __( 'A form id is required.', 'flinkform-pro' ), [ 'status' => 400 ] );
 		}
 		if ( '' === $data['url'] ) {
-			return new WP_Error( 'perform_webhook_invalid', __( 'A webhook URL is required.', 'perform-forms-pro' ), [ 'status' => 400 ] );
+			return new WP_Error( 'flinkform_webhook_invalid', __( 'A webhook URL is required.', 'flinkform-pro' ), [ 'status' => 400 ] );
 		}
 
 		$id = $this->repository->create( $data );
 		if ( null === $id ) {
-			return new WP_Error( 'perform_webhook_create_failed', __( 'Could not create webhook.', 'perform-forms-pro' ), [ 'status' => 500 ] );
+			return new WP_Error( 'flinkform_webhook_create_failed', __( 'Could not create webhook.', 'flinkform-pro' ), [ 'status' => 500 ] );
 		}
 
 		$row = $this->repository->find( $id );
@@ -202,7 +202,7 @@ final class RestController {
 		$id      = (int) $request->get_param( 'id' );
 		$existing = $this->repository->find( $id );
 		if ( null === $existing ) {
-			return new WP_Error( 'perform_webhook_not_found', __( 'Webhook not found.', 'perform-forms-pro' ), [ 'status' => 404 ] );
+			return new WP_Error( 'flinkform_webhook_not_found', __( 'Webhook not found.', 'flinkform-pro' ), [ 'status' => 404 ] );
 		}
 
 		// Merge the incoming payload over the existing row so a partial
@@ -214,7 +214,7 @@ final class RestController {
 
 		$ok = $this->repository->update( $id, $data );
 		if ( ! $ok ) {
-			return new WP_Error( 'perform_webhook_update_failed', __( 'Could not update webhook.', 'perform-forms-pro' ), [ 'status' => 500 ] );
+			return new WP_Error( 'flinkform_webhook_update_failed', __( 'Could not update webhook.', 'flinkform-pro' ), [ 'status' => 500 ] );
 		}
 
 		return new WP_REST_Response( $this->repository->find( $id ), 200 );
@@ -235,7 +235,7 @@ final class RestController {
 		$id      = (int) $request->get_param( 'id' );
 		$webhook = $this->repository->find( $id );
 		if ( null === $webhook ) {
-			return new WP_Error( 'perform_webhook_not_found', __( 'Webhook not found.', 'perform-forms-pro' ), [ 'status' => 404 ] );
+			return new WP_Error( 'flinkform_webhook_not_found', __( 'Webhook not found.', 'flinkform-pro' ), [ 'status' => 404 ] );
 		}
 
 		$result = $this->deliverer->send_test( $webhook );
@@ -260,7 +260,7 @@ final class RestController {
 		$id = (int) $request->get_param( 'id' );
 		$ok = $this->repository->delete( $id );
 		if ( ! $ok ) {
-			return new WP_Error( 'perform_webhook_delete_failed', __( 'Could not delete webhook.', 'perform-forms-pro' ), [ 'status' => 404 ] );
+			return new WP_Error( 'flinkform_webhook_delete_failed', __( 'Could not delete webhook.', 'flinkform-pro' ), [ 'status' => 404 ] );
 		}
 
 		return new WP_REST_Response( [ 'deleted' => true, 'id' => $id ], 200 );

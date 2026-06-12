@@ -2,7 +2,7 @@
 /**
  * Webhook delivery log repository.
  *
- * Owns `{prefix}_perform_webhook_deliveries`. Separate from
+ * Owns `{prefix}_flinkform_webhook_deliveries`. Separate from
  * `Webhooks\Repository` (which owns the configuration table) — the
  * dispatcher reads + writes this one heavily, the configuration
  * repo barely touches it (only on cascade-delete).
@@ -15,15 +15,15 @@
  *   success     dispatched, 2xx response
  *   failed      retries exhausted (4 attempts total: 1 initial + 3 retries)
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
-use PerFormPro\Database\Schema;
+use FlinkformPro\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 

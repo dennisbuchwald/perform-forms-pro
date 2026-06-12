@@ -20,13 +20,13 @@
  *   is_empty         — true when the field value is null, empty string or empty array
  *   is_not_empty     — inverse of is_empty
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -42,7 +42,7 @@ final class ConditionEvaluator {
 	 * Decide whether a webhook should fire for the given submission.
 	 *
 	 * @param array<string, mixed> $webhook Hydrated webhook config row.
-	 * @param array<string, mixed> $clean   Sanitised values keyed by field name (the same array passed to perform_after_submission).
+	 * @param array<string, mixed> $clean   Sanitised values keyed by field name (the same array passed to flinkform_after_submission).
 	 * @return bool True = fire the webhook; false = skip.
 	 */
 	public function should_fire( array $webhook, array $clean ): bool {

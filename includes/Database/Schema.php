@@ -1,10 +1,10 @@
 <?php
 /**
- * Database schema owner for PerForm Pro.
+ * Database schema owner for Flinkform Pro.
  *
  * Owns the webhook tables now that webhooks are a Pro feature (slice M-c-d-2).
- * The table NAMES are unchanged (`{prefix}perform_webhooks`,
- * `{prefix}perform_webhook_deliveries`) so an install that already had them
+ * The table NAMES are unchanged (`{prefix}flinkform_webhooks`,
+ * `{prefix}flinkform_webhook_deliveries`) so an install that already had them
  * created by an older free core is adopted seamlessly — `dbDelta()` is
  * idempotent, so re-running `create()` over an existing table is a no-op.
  *
@@ -14,13 +14,13 @@
  * Tables are NEVER dropped on deactivation — only on explicit uninstall — so a
  * license lapse never destroys a customer's webhook configuration or log.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Database;
+namespace FlinkformPro\Database;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,7 +39,7 @@ final class Schema {
 	/**
 	 * Option key holding the installed Pro schema version.
 	 */
-	public const OPTION_DB_VERSION = 'perform_pro_db_version';
+	public const OPTION_DB_VERSION = 'flinkform_pro_db_version';
 
 	/**
 	 * Resolve the fully-qualified webhooks table name.
@@ -48,7 +48,7 @@ final class Schema {
 	 */
 	public static function webhooks_table_name(): string {
 		global $wpdb;
-		return $wpdb->prefix . 'perform_webhooks';
+		return $wpdb->prefix . 'flinkform_webhooks';
 	}
 
 	/**
@@ -58,7 +58,7 @@ final class Schema {
 	 */
 	public static function webhook_deliveries_table_name(): string {
 		global $wpdb;
-		return $wpdb->prefix . 'perform_webhook_deliveries';
+		return $wpdb->prefix . 'flinkform_webhook_deliveries';
 	}
 
 	/**

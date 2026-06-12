@@ -1,10 +1,10 @@
 <?php
 /**
- * CSV export controller (PerForm Pro).
+ * CSV export controller (Flinkform Pro).
  *
  * Owns the submissions CSV export end to end now that it lives in Pro:
  *
- *   - render_button()      — hooks the free core's `perform_submissions_table_actions`
+ *   - render_button()      — hooks the free core's `flinkform_submissions_table_actions`
  *                            seam to print the "Export CSV" button inline with the
  *                            Filter button, so the free core ships no export UI.
  *   - maybe_handle_export() — runs on admin_init, intercepts the export request the
@@ -15,16 +15,16 @@
  * Capability and page slug are read from the free core's Menu so the gate stays
  * identical to every other submissions action.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.0
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Export;
+namespace FlinkformPro\Export;
 
-use PerForm\Admin\Menu;
-use PerForm\Submissions\Repository;
+use Flinkform\Admin\Menu;
+use Flinkform\Submissions\Repository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class ExportController {
 
-	private const NONCE_ACTION = 'perform_export';
+	private const NONCE_ACTION = 'flinkform_export';
 
 	/**
 	 * Register the WordPress hooks.
@@ -42,7 +42,7 @@ final class ExportController {
 	 */
 	public function register(): void {
 		add_action( 'admin_init', [ $this, 'maybe_handle_export' ] );
-		add_action( 'perform_submissions_table_actions', [ $this, 'render_button' ] );
+		add_action( 'flinkform_submissions_table_actions', [ $this, 'render_button' ] );
 	}
 
 	/**
@@ -58,7 +58,7 @@ final class ExportController {
 			array_merge(
 				[
 					'page'           => Menu::PARENT_SLUG,
-					'perform_action' => 'export',
+					'flinkform_action' => 'export',
 					'_wpnonce'       => wp_create_nonce( self::NONCE_ACTION ),
 				],
 				$current
@@ -69,7 +69,7 @@ final class ExportController {
 		printf(
 			'<a href="%s" class="button">%s</a>',
 			esc_url( $export_url ),
-			esc_html__( 'Export CSV', 'perform-forms-pro' )
+			esc_html__( 'Export CSV', 'flinkform-pro' )
 		);
 	}
 
@@ -77,18 +77,18 @@ final class ExportController {
 	 * Intercept and handle the export request on admin_init.
 	 *
 	 * Streams a CSV (which exit()s) when the request targets the submissions
-	 * page with `perform_action=export`, the user is capable, and the nonce
+	 * page with `flinkform_action=export`, the user is capable, and the nonce
 	 * checks out. Any other request falls straight through.
 	 *
 	 * @return void
 	 */
 	public function maybe_handle_export(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- routing check only; the nonce is verified below before any output.
-		if ( ! isset( $_GET['page'], $_GET['perform_action'] ) ) {
+		if ( ! isset( $_GET['page'], $_GET['flinkform_action'] ) ) {
 			return;
 		}
 		$page   = sanitize_key( wp_unslash( $_GET['page'] ) );
-		$action = sanitize_key( wp_unslash( $_GET['perform_action'] ) );
+		$action = sanitize_key( wp_unslash( $_GET['flinkform_action'] ) );
 		// phpcs:enable
 
 		if ( Menu::PARENT_SLUG !== $page || 'export' !== $action ) {

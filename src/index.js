@@ -1,12 +1,12 @@
 /**
- * PerForm Pro — block-editor extensions entry.
+ * Flinkform Pro — block-editor extensions entry.
  *
  * Docks Pro inspector panels onto the free core's form-container via the
- * `perform.formContainer.inspectorPanels` filter (the M-c-c seam). Built with
+ * `flinkform.formContainer.inspectorPanels` filter (the M-c-c seam). Built with
  * @wordpress/scripts; the compiled bundle + its asset manifest are enqueued by
- * PerFormPro\Editor\Extensions on enqueue_block_editor_assets.
+ * FlinkformPro\Editor\Extensions on enqueue_block_editor_assets.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.4
  */
 import { addFilter } from '@wordpress/hooks';
@@ -23,23 +23,23 @@ import CustomCssPanel from './custom-css-panel';
  * @return {Array} Panels including the Pro additions.
  */
 addFilter(
-	'perform.formContainer.inspectorPanels',
-	'perform-forms-pro/panels',
+	'flinkform.formContainer.inspectorPanels',
+	'flinkform-pro/panels',
 	( panels, props ) => [
 		...panels,
 		<SpamPanel
-			key="perform-pro-spam"
+			key="flinkform-pro-spam"
 			attributes={ props.attributes }
 			setAttributes={ props.setAttributes }
 		/>,
 		<CustomCssPanel
-			key="perform-pro-custom-css"
+			key="flinkform-pro-custom-css"
 			attributes={ props.attributes }
 			setAttributes={ props.setAttributes }
 			formId={ props.formId }
 		/>,
 		<IntegrationsPanel
-			key="perform-pro-integrations"
+			key="flinkform-pro-integrations"
 			formId={ props.formId }
 			formFields={ props.formFields }
 		/>,

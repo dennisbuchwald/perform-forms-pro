@@ -1,23 +1,23 @@
 <?php
 /**
- * Webhook deliveries on the submission detail screen (PerForm Pro).
+ * Webhook deliveries on the submission detail screen (Flinkform Pro).
  *
- * The free core's submission detail view fires `perform_submission_detail_after`
+ * The free core's submission detail view fires `flinkform_submission_detail_after`
  * after the field table; Pro hooks it to render the "Webhook Deliveries" table
  * for that submission (status, response code, retry attempt + a Resend action).
  * The Resend request is handled independently on admin_init — re-checking the
  * submissions capability + the per-row nonce, since the free core no longer
  * routes a `webhook_resend` action.
  *
- * @package PerFormPro
+ * @package FlinkformPro
  * @since 0.2.5
  */
 
 declare( strict_types = 1 );
 
-namespace PerFormPro\Webhooks;
+namespace FlinkformPro\Webhooks;
 
-use PerForm\Admin\Menu;
+use Flinkform\Admin\Menu;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -32,7 +32,7 @@ final class SubmissionDetail {
 	 * @return void
 	 */
 	public function register(): void {
-		add_action( 'perform_submission_detail_after', [ $this, 'render_section' ] );
+		add_action( 'flinkform_submission_detail_after', [ $this, 'render_section' ] );
 		add_action( 'admin_init', [ $this, 'maybe_handle_resend' ] );
 	}
 
@@ -49,16 +49,16 @@ final class SubmissionDetail {
 			return; // No webhooks configured for this form, or none triggered yet.
 		}
 		?>
-		<h2 style="margin-top:32px;"><?php esc_html_e( 'Webhook Deliveries', 'perform-forms-pro' ); ?></h2>
+		<h2 style="margin-top:32px;"><?php esc_html_e( 'Webhook Deliveries', 'flinkform-pro' ); ?></h2>
 		<table class="widefat striped">
 			<thead>
 				<tr>
-					<th><?php esc_html_e( 'Webhook', 'perform-forms-pro' ); ?></th>
-					<th><?php esc_html_e( 'Status', 'perform-forms-pro' ); ?></th>
-					<th><?php esc_html_e( 'Code', 'perform-forms-pro' ); ?></th>
-					<th><?php esc_html_e( 'Attempt', 'perform-forms-pro' ); ?></th>
-					<th><?php esc_html_e( 'Updated', 'perform-forms-pro' ); ?></th>
-					<th><?php esc_html_e( 'Actions', 'perform-forms-pro' ); ?></th>
+					<th><?php esc_html_e( 'Webhook', 'flinkform-pro' ); ?></th>
+					<th><?php esc_html_e( 'Status', 'flinkform-pro' ); ?></th>
+					<th><?php esc_html_e( 'Code', 'flinkform-pro' ); ?></th>
+					<th><?php esc_html_e( 'Attempt', 'flinkform-pro' ); ?></th>
+					<th><?php esc_html_e( 'Updated', 'flinkform-pro' ); ?></th>
+					<th><?php esc_html_e( 'Actions', 'flinkform-pro' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -67,11 +67,11 @@ final class SubmissionDetail {
 					$url    = (string) ( $delivery['webhook_url'] ?? '' );
 					$status = (string) ( $delivery['status'] ?? '' );
 					$color  = WebhookLogListTable::status_color( $status );
-					$resend_nonce = wp_create_nonce( 'perform_webhook_resend_' . (int) $delivery['id'] );
+					$resend_nonce = wp_create_nonce( 'flinkform_webhook_resend_' . (int) $delivery['id'] );
 					$resend_url   = add_query_arg(
 						[
 							'page'           => Menu::PARENT_SLUG,
-							'perform_action' => 'webhook_resend',
+							'flinkform_action' => 'webhook_resend',
 							'id'             => $submission_id,
 							'delivery_id'    => (int) $delivery['id'],
 							'_wpnonce'       => $resend_nonce,
@@ -83,7 +83,7 @@ final class SubmissionDetail {
 						<td>
 							<?php
 							if ( '' === $label && '' === $url ) {
-								echo '<em>' . esc_html__( '(deleted)', 'perform-forms-pro' ) . '</em>';
+								echo '<em>' . esc_html__( '(deleted)', 'flinkform-pro' ) . '</em>';
 							} else {
 								echo esc_html( '' !== $label ? $label : $url );
 								if ( '' !== $label && '' !== $url ) {
@@ -109,7 +109,7 @@ final class SubmissionDetail {
 						</td>
 						<td>
 							<a href="<?php echo esc_url( $resend_url ); ?>" class="button button-small">
-								<?php esc_html_e( 'Resend', 'perform-forms-pro' ); ?>
+								<?php esc_html_e( 'Resend', 'flinkform-pro' ); ?>
 							</a>
 						</td>
 					</tr>
@@ -118,7 +118,7 @@ final class SubmissionDetail {
 							<td colspan="6">
 								<details>
 									<summary style="cursor:pointer;font-size:12px;opacity:0.75;">
-										<?php esc_html_e( 'Response body', 'perform-forms-pro' ); ?>
+										<?php esc_html_e( 'Response body', 'flinkform-pro' ); ?>
 									</summary>
 									<pre style="white-space:pre-wrap;word-break:break-word;font-size:11px;max-height:150px;overflow:auto;margin:4px 0 0;background:#f6f7f7;padding:8px;border-radius:3px;"><?php echo esc_html( (string) $delivery['response_body'] ); ?></pre>
 								</details>
@@ -142,11 +142,11 @@ final class SubmissionDetail {
 	 */
 	public function maybe_handle_resend(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- routing check only; the nonce is verified below.
-		if ( ! isset( $_GET['page'], $_GET['perform_action'] ) ) {
+		if ( ! isset( $_GET['page'], $_GET['flinkform_action'] ) ) {
 			return;
 		}
 		$page   = sanitize_key( wp_unslash( $_GET['page'] ) );
-		$action = sanitize_key( wp_unslash( $_GET['perform_action'] ) );
+		$action = sanitize_key( wp_unslash( $_GET['flinkform_action'] ) );
 		$submission_id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0;
 		$delivery_id   = isset( $_GET['delivery_id'] ) ? (int) $_GET['delivery_id'] : 0;
 		// phpcs:enable
@@ -160,30 +160,30 @@ final class SubmissionDetail {
 		if ( 0 === $submission_id || 0 === $delivery_id ) {
 			return;
 		}
-		check_admin_referer( 'perform_webhook_resend_' . $delivery_id );
+		check_admin_referer( 'flinkform_webhook_resend_' . $delivery_id );
 
 		$delivery_repo = new DeliveryRepository();
 		$original      = $delivery_repo->find( $delivery_id );
 
 		if ( null === $original || (int) $original['submission_id'] !== $submission_id ) {
-			$this->redirect_to_detail( $submission_id, __( 'Could not resend — delivery not found.', 'perform-forms-pro' ) );
+			$this->redirect_to_detail( $submission_id, __( 'Could not resend — delivery not found.', 'flinkform-pro' ) );
 			return;
 		}
 
 		$new_id = $delivery_repo->enqueue( (int) $original['webhook_id'], $submission_id );
 		if ( null === $new_id ) {
-			$this->redirect_to_detail( $submission_id, __( 'Could not resend — queue insert failed.', 'perform-forms-pro' ) );
+			$this->redirect_to_detail( $submission_id, __( 'Could not resend — queue insert failed.', 'flinkform-pro' ) );
 			return;
 		}
 
 		wp_schedule_single_event( time() + 1, Dispatcher::CRON_HOOK );
-		$this->redirect_to_detail( $submission_id, __( 'Webhook delivery re-queued.', 'perform-forms-pro' ) );
+		$this->redirect_to_detail( $submission_id, __( 'Webhook delivery re-queued.', 'flinkform-pro' ) );
 	}
 
 	/**
 	 * Redirect back to the submission detail view carrying a notice.
 	 *
-	 * Uses the same `perform_notice` query arg the free core's submission
+	 * Uses the same `flinkform_notice` query arg the free core's submission
 	 * detail view reads + renders.
 	 *
 	 * @param int    $submission_id Submission id.
@@ -196,7 +196,7 @@ final class SubmissionDetail {
 				'page'           => Menu::PARENT_SLUG,
 				'action'         => 'view',
 				'id'             => $submission_id,
-				'perform_notice' => rawurlencode( $notice ),
+				'flinkform_notice' => rawurlencode( $notice ),
 			],
 			admin_url( 'admin.php' )
 		);
