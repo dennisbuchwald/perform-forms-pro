@@ -19,12 +19,14 @@ planned via Freemius, not yet wired).
   full delivery log. SSRF-hardened.
 - **CSV export** — export filtered submissions from the admin list.
 - **Custom CSS** — per-form CSS panel in the editor.
+- **File Upload field** — per-field type allow-list (ext+content sniffing),
+  size cap, randomised storage in a script-execution-blocked uploads
+  subdirectory, automatic file deletion with the submission (GDPR cascade).
+- **Newsletter integrations** — Brevo, Mailchimp and CleverReach signups
+  with a mandatory consent-field gate, async dispatch and double opt-in.
 
 ### Roadmap (next)
 
-- File-upload field (docks onto the free core's `flinkform_field_blocks` +
-  `flinkform_process_submission` seams, cut in core 0.4.0)
-- Newsletter/CRM integrations: Brevo, Mailchimp, CleverReach
 - External CAPTCHA providers (Turnstile, hCaptcha) for operators who want them
 - SMTP OAuth2 (Google Workspace, Microsoft 365)
 - Stripe payments
