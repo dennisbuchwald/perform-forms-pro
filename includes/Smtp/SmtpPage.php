@@ -686,7 +686,7 @@ final class SmtpPage {
 									<?php esc_html_e( 'Keep a send history (recipient, subject, result - never the mail body)', 'flinkform-pro' ); ?>
 								</label>
 								<p class="description">
-									<?php esc_html_e( 'Shows whether each notification actually left the server, with the exact error when it did not.', 'flinkform-pro' ); ?>
+									<?php esc_html_e( 'Shows whether each notification actually left the server, with the exact error when it did not. Note: because SMTP routes all of the site\'s email, the log records every outgoing message (including mail from other plugins), not just Flinkform notifications.', 'flinkform-pro' ); ?>
 								</p>
 							</td>
 						</tr>

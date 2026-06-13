@@ -161,30 +161,47 @@ final class Module {
 			'attempt'    => 1,
 		];
 
-		wp_schedule_single_event( time(), self::CRON_HOOK, [ $payload ] );
+		// Subscriber PII (email, name) must NOT travel through the cron
+		// args — wp_schedule_single_event serialises them into the
+		// wp_options('cron') row in plaintext until the event fires. Stash
+		// the payload in a transient under an opaque key and pass only that
+		// key through cron (mirrors how the webhook queue references rows
+		// by id rather than inlining the data).
+		$ticket = 'flinkform_nl_' . wp_generate_password( 20, false, false );
+		set_transient( $ticket, $payload, HOUR_IN_SECONDS );
+
+		wp_schedule_single_event( time(), self::CRON_HOOK, [ $ticket ] );
 	}
 
 	/**
 	 * Cron worker: call the provider, record the result, retry once on
 	 * transient failures.
 	 *
-	 * @param array<string, mixed> $payload See maybe_queue().
+	 * @param string $ticket Opaque transient key holding the queued payload.
 	 * @return void
 	 */
-	public function dispatch( $payload ): void {
-		if ( ! is_array( $payload ) ) {
+	public function dispatch( $ticket ): void {
+		$ticket = (string) $ticket;
+		if ( '' === $ticket || 0 !== strpos( $ticket, 'flinkform_nl_' ) ) {
 			return;
+		}
+
+		$payload = get_transient( $ticket );
+		if ( ! is_array( $payload ) ) {
+			return; // Already processed, or expired — nothing to do.
 		}
 
 		$provider_key = (string) ( $payload['provider'] ?? '' );
 		$providers    = self::providers();
 		if ( ! isset( $providers[ $provider_key ] ) ) {
+			delete_transient( $ticket );
 			return;
 		}
 
 		$settings = self::get_settings( true );
 		$class    = $providers[ $provider_key ];
 		if ( ! $class::is_configured( $settings ) ) {
+			delete_transient( $ticket );
 			$this->record_result( $provider_key, false, 'Provider not configured (missing credentials).' );
 			return;
 		}
@@ -198,6 +215,7 @@ final class Module {
 		);
 
 		if ( true === $result ) {
+			delete_transient( $ticket );
 			$this->record_result( $provider_key, true, 'OK' );
 			return;
 		}
@@ -207,11 +225,15 @@ final class Module {
 
 		if ( $result instanceof \WP_Error && 'transient' === $result->get_error_code() && $attempt < self::MAX_ATTEMPTS ) {
 			$payload['attempt'] = $attempt + 1;
-			wp_schedule_single_event( time() + 5 * MINUTE_IN_SECONDS, self::CRON_HOOK, [ $payload ] );
+			// Refresh the stash (incremented attempt) and re-arm cron with
+			// the same opaque ticket — still no PII in the cron args.
+			set_transient( $ticket, $payload, HOUR_IN_SECONDS );
+			wp_schedule_single_event( time() + 5 * MINUTE_IN_SECONDS, self::CRON_HOOK, [ $ticket ] );
 			$this->record_result( $provider_key, false, $message . ' (retry scheduled)' );
 			return;
 		}
 
+		delete_transient( $ticket );
 		$this->record_result( $provider_key, false, $message );
 	}
 

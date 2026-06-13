@@ -182,25 +182,9 @@ function flinkform_pro_admin_guard(): void {
 		return;
 	}
 
-	// Dock succeeded — surface the active capabilities as proof.
-	add_action(
-		'admin_notices',
-		static function (): void {
-			if ( ! class_exists( '\\Flinkform\\Bridge\\Features' ) ) {
-				return;
-			}
-			$active = array_keys( \Flinkform\Bridge\Features::all() );
-			echo '<div class="notice notice-success is-dismissible"><p>';
-			echo wp_kses_post(
-				sprintf(
-					/* translators: 1: Pro version, 2: comma-separated list of active capabilities. */
-					__( '<strong>Flinkform Pro %1$s</strong> is active and docked onto the Flinkform core. Pro capabilities: %2$s', 'flinkform-pro' ),
-					esc_html( FLINKFORM_PRO_VERSION ),
-					esc_html( implode( ', ', $active ) )
-				)
-			);
-			echo '</p></div>';
-		}
-	);
+	// Dock succeeded. No success notice is shown: a working plugin should
+	// not banner itself on every admin page (the Plugins screen already
+	// shows it as active). Only the incompatible-core case above warrants
+	// a persistent, actionable notice.
 }
 add_action( 'plugins_loaded', 'flinkform_pro_admin_guard', 20 );

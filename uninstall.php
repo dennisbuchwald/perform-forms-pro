@@ -32,7 +32,41 @@ if ( ! defined( 'FLINKFORM_PRO_DIR' ) ) {
 delete_option( 'flinkform_smtp_settings' );
 delete_option( 'flinkform_smtp_last_test' );
 
+// Newsletter module options (encrypted API credentials + last-result cache).
+delete_option( 'flinkform_newsletter_settings' );
+delete_option( 'flinkform_newsletter_last_result' );
+
 $admins = get_users( [ 'role' => 'administrator', 'fields' => 'ID' ] );
 foreach ( $admins as $admin_id ) {
 	delete_transient( 'flinkform_smtp_test_result_' . $admin_id );
+}
+
+// Remove visitor-uploaded files (personal data) from the File Upload field.
+// The per-submission deletion cascade runs on row deletion, but uninstall
+// drops the tables wholesale without firing those hooks — so the
+// uploads/flinkform/ directory would otherwise be left behind on disk.
+flinkform_pro_delete_upload_dir();
+
+/**
+ * Recursively delete the plugin's uploads subdirectory via WP_Filesystem.
+ *
+ * @return void
+ */
+function flinkform_pro_delete_upload_dir(): void {
+	$uploads = wp_upload_dir( null, false );
+	if ( empty( $uploads['basedir'] ) ) {
+		return;
+	}
+
+	$dir = trailingslashit( (string) $uploads['basedir'] ) . 'flinkform';
+
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	if ( ! WP_Filesystem() ) {
+		return; // No filesystem access — leave the files rather than risk a fatal.
+	}
+
+	global $wp_filesystem;
+	if ( $wp_filesystem && $wp_filesystem->is_dir( $dir ) ) {
+		$wp_filesystem->delete( $dir, true ); // Recursive.
+	}
 }

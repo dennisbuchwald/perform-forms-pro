@@ -9,6 +9,16 @@
  * the confirmation for submission X actually leave the server, and if not,
  * why?".
  *
+ * SCOPE: the SMTP feature routes ALL of the site's wp_mail() through the
+ * configured provider, so this log is deliberately site-wide — it records
+ * every outgoing mail while logging is on, not just Flinkform's own
+ * notifications (password resets, WooCommerce order mails, etc. are
+ * included). That is the point of a deliverability log for an SMTP relay;
+ * restricting it to Flinkform mails would defeat the diagnostic purpose.
+ * The settings-page help text and the privacy-policy disclosure both state
+ * this explicitly so operators can make an informed choice (it is opt-in,
+ * default on only once SMTP itself is enabled).
+ *
  * GDPR posture: rows store recipients + subject + error only — never the
  * mail body — and are purged after the configured retention period (default
  * 30 days, 'log_retention_days' in the SMTP settings). The Pro privacy
@@ -191,11 +201,26 @@ final class MailLog {
 
 		$table = Schema::mail_log_table_name();
 
+		// Recipients are stored as a ", "-joined list. Match the address on
+		// token boundaries so erasing anna@example.com does NOT also nuke
+		// rows for susanna@example.com (a plain LIKE '%email%' over-matches
+		// and would delete other data subjects' log entries). esc_like only
+		// neutralises SQL wildcards, not the word-boundary problem.
+		$like   = $wpdb->esc_like( $email );
+		$sep     = ', ';
+		$as_only  = $email;                          // sole recipient
+		$as_first = $like . $wpdb->esc_like( $sep ) . '%'; // "email, …"
+		$as_last  = '%' . $wpdb->esc_like( $sep ) . $like;  // "…, email"
+		$as_mid   = '%' . $wpdb->esc_like( $sep ) . $like . $wpdb->esc_like( $sep ) . '%'; // "…, email, …"
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- dedicated custom table; name cannot be parameterised.
 		$deleted = $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table} WHERE recipients LIKE %s",
-				'%' . $wpdb->esc_like( $email ) . '%'
+				"DELETE FROM {$table} WHERE recipients = %s OR recipients LIKE %s OR recipients LIKE %s OR recipients LIKE %s",
+				$as_only,
+				$as_first,
+				$as_last,
+				$as_mid
 			)
 		);
 

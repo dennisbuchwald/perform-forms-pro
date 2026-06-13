@@ -128,13 +128,21 @@ final class RestController {
 	}
 
 	/**
-	 * Capability gate. `edit_posts` matches what the block editor
-	 * already requires for the post the inspector sits inside.
+	 * Capability gate.
+	 *
+	 * Webhooks are a data-exfiltration channel: a webhook can stream every
+	 * future submission (names, emails, messages, upload references) to an
+	 * arbitrary external URL, and the test route returns the remote
+	 * response. That is strictly more powerful than reading submissions in
+	 * wp-admin, so it must require the SAME capability the rest of the
+	 * Flinkform admin does (manage_options), not the editor's edit_posts.
+	 * Gating on edit_posts would let an Editor/Author role exfiltrate data
+	 * they cannot even see in the dashboard.
 	 *
 	 * @return bool
 	 */
 	public function check_permission(): bool {
-		return current_user_can( 'edit_posts' );
+		return current_user_can( \Flinkform\Admin\Menu::CAPABILITY );
 	}
 
 	/**
